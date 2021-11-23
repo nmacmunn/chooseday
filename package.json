@@ -1,0 +1,33 @@
+{
+  "name": "indecisionator-svelte",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "deploy": "firebase deploy --only hosting"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.11",
+    "@tsconfig/svelte": "^2.0.1",
+    "@types/d3-scale-chromatic": "^3.0.0",
+    "@types/lodash": "^4.14.177",
+    "@types/uikit": "^3.3.2",
+    "svelte": "^3.37.0",
+    "svelte-check": "^2.1.0",
+    "svelte-preprocess": "^4.7.2",
+    "tslib": "^2.2.0",
+    "typescript": "^4.3.2",
+    "vite": "^2.6.4"
+  },
+  "dependencies": {
+    "chart.js": "^3.6.0",
+    "d3-scale-chromatic": "^3.0.0",
+    "firebase": "^9.2.0",
+    "lodash": "^4.17.21",
+    "uikit": "^3.8.0",
+    "xstate": "^4.26.0"
+  }
+}
