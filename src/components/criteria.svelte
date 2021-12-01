@@ -94,9 +94,9 @@
         <ListDivider />
       {/if}
       {#each sorted.byWeight[weight] as criterion (criterion)}
-        <ListCard value={criterion}>
+        <ListCard value={criterion} sortable={true}>
           <svelte:fragment slot="left">
-            <span uk-icon="table" class="uk-margin-right uk-sortable-handle" />
+            <span uk-icon="table" class="uk-margin-right" />
             <span>{criterion.title}</span>
           </svelte:fragment>
           <svelte:fragment slot="right">

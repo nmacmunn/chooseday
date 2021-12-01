@@ -129,9 +129,9 @@
         <ListDivider />
       {/if}
       {#each sorted.byWeight[weight] as rating (rating)}
-        <ListCard value={rating}>
+        <ListCard value={rating} sortable={true}>
           <svelte:fragment slot="left">
-            <span uk-icon="table" class="uk-margin-right uk-sortable-handle" />
+            <span uk-icon="table" class="uk-margin-right" />
             <span>{optionTitles[rating.optionId]}</span>
           </svelte:fragment>
         </ListCard>

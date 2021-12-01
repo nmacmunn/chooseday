@@ -3,6 +3,7 @@
   const noop = () => undefined;
   export let onClick: () => unknown = noop;
   export let value: any = undefined;
+  export let sortable = false;
   let element: HTMLLIElement;
   onMount(() => {
     const data = {
@@ -16,6 +17,7 @@
 <li bind:this={element}>
   <div
     class="uk-card uk-card-default uk-card-small uk-card-body"
+    class:uk-sortable-handle={sortable}
     class:uk-card-hover={onClick !== noop}
   >
     <div class="uk-grid uk-flex-middle">
