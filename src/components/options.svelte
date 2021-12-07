@@ -57,19 +57,21 @@
   {/if}
   <ul class="uk-grid-small uk-child-width-1-1" uk-grid>
     {#each sorted as option (option.id)}
-      <ListCard>
-        <span slot="left">{option.title}</span>
-        <span slot="right">
-          {#if isCreator}
-            <div class="uk-width-auto">
-              <More
-                onDelete={() => removeOption(option.id)}
-                onEdit={() => editTitle(option)}
-              />
-            </div>
-          {/if}
-        </span>
-      </ListCard>
+      <li>
+        <ListCard>
+          <span slot="left">{option.title}</span>
+          <span slot="right">
+            {#if isCreator}
+              <div class="uk-width-auto">
+                <More
+                  onDelete={() => removeOption(option.id)}
+                  onEdit={() => editTitle(option)}
+                />
+              </div>
+            {/if}
+          </span>
+        </ListCard>
+      </li>
     {/each}
   </ul>
 {/if}

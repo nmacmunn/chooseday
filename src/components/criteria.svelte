@@ -2,16 +2,15 @@
   import _ from "lodash";
   import UIkit from "uikit";
   import { addCriterion, removeCriterion, updateCriterion } from "../db";
-  import type { SortEventDetail } from "../types/components";
   import type { Criterion } from "../types/data";
   import type { CriteriaState } from "../types/states";
   import Create from "./create.svelte";
   import ListCard from "./list-card.svelte";
-  import ListDivider from "./list-divider.svelte";
   import More from "./more.svelte";
   import NextBack from "./next-back.svelte";
   import PlaceholderCard from "./placeholder-card.svelte";
-  import Sortable from "./sortable.svelte";
+  import SortableItem from "./sortable-item.svelte";
+  import SortableList from "./sortable-list.svelte";
 
   export let state: CriteriaState;
 
@@ -23,19 +22,19 @@
     }
   }
 
-  function onSorted(event: CustomEvent<SortEventDetail<Criterion>>) {
-    const groups = Object.keys(event.detail).map(Number);
+  function onSorted() {
     let updated = false;
-    for (const group of groups) {
-      const weight = group + 1;
-      for (const criterion of event.detail[group]) {
+    const groups = top.sorted().reverse();
+    groups.forEach((criteria, i) => {
+      const weight = i + 1;
+      for (const criterion of criteria) {
         if (criterion.weight !== weight) {
           criterion.weight = weight;
           updateCriterion(criterion);
           updated = true;
         }
       }
-    }
+    });
     if (!updated) {
       state = state;
     }
@@ -58,6 +57,7 @@
       weights,
     };
   }
+  let top: SortableList;
 </script>
 
 <Create
@@ -85,33 +85,36 @@
         : "two criteria"}
     </PlaceholderCard>
   {/if}
-
-  <Sortable on:sorted={onSorted}>
-    {#each sorted.weights as weight, i ({})}
-      {#if i === 0}
-        <ListDivider><b>Most</b> important</ListDivider>
-      {:else}
-        <ListDivider />
-      {/if}
-      {#each sorted.byWeight[weight] as criterion (criterion)}
-        <ListCard value={criterion} sortable={true}>
-          <svelte:fragment slot="left">
-            <span uk-icon="table" class="uk-margin-right" />
-            <span>{criterion.title}</span>
-          </svelte:fragment>
-          <svelte:fragment slot="right">
-            <More
-              onDelete={() => removeCriterion(criterion)}
-              onEdit={() => editTitle(criterion)}
-            />
-          </svelte:fragment>
-        </ListCard>
-      {/each}
+  <div class="uk-text-muted uk-text-center uk-margin">
+    <b>Most</b> important
+  </div>
+  <SortableList bind:this={top}>
+    {#each sorted.weights as weight ({})}
+      <SortableItem>
+        <SortableList on:sorted={onSorted}>
+          {#each sorted.byWeight[weight] as criterion (criterion)}
+            <SortableItem data={criterion}>
+              <ListCard>
+                <svelte:fragment slot="left">
+                  <span uk-icon="table" class="uk-margin-right" />
+                  <span>{criterion.title}</span>
+                </svelte:fragment>
+                <svelte:fragment slot="right">
+                  <More
+                    onDelete={() => removeCriterion(criterion)}
+                    onEdit={() => editTitle(criterion)}
+                  />
+                </svelte:fragment>
+              </ListCard>
+            </SortableItem>
+          {/each}
+        </SortableList>
+      </SortableItem>
     {/each}
-    {#if sorted.weights.length}
-      <ListDivider><b>Least</b> important</ListDivider>
-    {/if}
-  </Sortable>
+  </SortableList>
+  <div class="uk-text-muted uk-text-center uk-margin">
+    <b>Least</b> important
+  </div>
 {/if}
 
 <NextBack

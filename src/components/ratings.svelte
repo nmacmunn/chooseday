@@ -1,18 +1,19 @@
 <script lang="ts">
   import _ from "lodash";
-  import type { AppEvent } from "../types/events";
   import { setRatingsWeights } from "../db";
   import { send } from "../machine";
-  import type { SortEventDetail } from "../types/components";
   import type { Rating } from "../types/data";
+  import type { AppEvent } from "../types/events";
   import type { RatingsState } from "../types/states";
   import ListCard from "./list-card.svelte";
-  import ListDivider from "./list-divider.svelte";
   import NextBack from "./next-back.svelte";
   import PlaceholderCard from "./placeholder-card.svelte";
-  import Sortable from "./sortable.svelte";
+  import SortableItem from "./sortable-item.svelte";
+  import SortableList from "./sortable-list.svelte";
 
   export let state: RatingsState;
+
+  let top: SortableList;
 
   const criteria = state.context.criteria.filter(
     ({ user }) => user.id === state.context.user.id
@@ -31,17 +32,17 @@
     .mapValues("title")
     .value();
 
-  function onSorted(event: CustomEvent<SortEventDetail<Rating>>) {
-    const groups = Object.keys(event.detail).map(Number);
+  function onSorted() {
+    const groups = top.sorted().reverse();
     let toUpdate: [string, number][] = [];
-    for (const group of groups) {
-      const weight = group + 1;
-      for (const rating of event.detail[group]) {
+    groups.forEach((ratings, i) => {
+      const weight = i + 1;
+      for (const rating of ratings) {
         if (rating.weight !== weight) {
           toUpdate.push([rating.id, weight]);
         }
       }
-    }
+    });
     if (toUpdate.length) {
       setRatingsWeights(toUpdate);
     } else {
@@ -112,7 +113,9 @@
 </ul>
 
 <h5 class="uk-text-light">
-  <span>Sort options by {selected.title.toLowerCase()} from best to worst</span>
+  <span>Sort options by</span>
+  <span class="uk-background-muted title">{selected.title}</span>
+  <span>from best to worst</span>
 </h5>
 
 {#if !sorted}
@@ -121,26 +124,32 @@
     <span>Loading ratings</span>
   </PlaceholderCard>
 {:else}
-  <Sortable on:sorted={onSorted}>
+  <div class="uk-text-muted uk-text-center uk-margin"><b>Best</b> option</div>
+  <SortableList bind:this={top}>
     {#each sorted.weights as weight, i ({})}
-      {#if i === 0}
-        <ListDivider><b>Best</b> option</ListDivider>
-      {:else}
-        <ListDivider />
-      {/if}
-      {#each sorted.byWeight[weight] as rating (rating)}
-        <ListCard value={rating} sortable={true}>
-          <svelte:fragment slot="left">
-            <span uk-icon="table" class="uk-margin-right" />
-            <span>{optionTitles[rating.optionId]}</span>
-          </svelte:fragment>
-        </ListCard>
-      {/each}
+      <SortableItem>
+        <SortableList on:sorted={onSorted}>
+          {#each sorted.byWeight[weight] as rating (rating)}
+            <SortableItem data={rating}>
+              <ListCard>
+                <svelte:fragment slot="left">
+                  <span uk-icon="table" class="uk-margin-right" />
+                  <span>{optionTitles[rating.optionId]}</span>
+                </svelte:fragment>
+              </ListCard>
+            </SortableItem>
+          {/each}
+        </SortableList>
+      </SortableItem>
     {/each}
-    {#if sorted.weights.length}
-      <ListDivider><b>Worst</b> option</ListDivider>
-    {/if}
-  </Sortable>
+  </SortableList>
+  <div class="uk-text-muted uk-text-center uk-margin"><b>Worst</b> option</div>
 {/if}
 
 <NextBack {back} {next} />
+
+<style>
+  .title {
+    border-bottom: 1px solid;
+  }
+</style>

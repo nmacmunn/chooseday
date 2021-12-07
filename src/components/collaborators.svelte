@@ -40,7 +40,7 @@
 
 {#if isCreator}
   <Create
-    label="Add a collaborator"
+    label="Add a collaborator (optional)"
     onSubmit={addCollaborator}
     placeholder="advisor@example.com"
   />
@@ -53,21 +53,23 @@
 {#if isCreator && decision.collaborators.length === 0}
   <PlaceholderCard>
     <span uk-icon="info" class="uk-margin-right" />
-    <span>Enter an email address to add a collaborator (optional)</span>
+    <span>Enter an email address to add a collaborator</span>
   </PlaceholderCard>
 {/if}
 
 <ul class="uk-grid uk-grid-small uk-child-width-1-1" uk-grid>
   {#each decision.collaborators as email, i}
-    <ListCard>
-      <span slot="left">{email}</span>
-      <span slot="right">
-        <More
-          onDelete={() => removeCollaborator(i)}
-          onEdit={() => editEmail(i)}
-        />
-      </span>
-    </ListCard>
+    <li>
+      <ListCard>
+        <span slot="left">{email}</span>
+        <span slot="right">
+          <More
+            onDelete={() => removeCollaborator(i)}
+            onEdit={() => editEmail(i)}
+          />
+        </span>
+      </ListCard>
+    </li>
   {/each}
 </ul>
 

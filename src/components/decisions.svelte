@@ -84,20 +84,24 @@
 {:else}
   <ul class="uk-grid-small uk-child-width-1-1" uk-grid>
     {#each creator as decision (decision.id)}
-      <ListCard onClick={() => send({ type: "DECISION", decision })}>
-        <div slot="left">{decision.title}</div>
-        <More
-          slot="right"
-          onDelete={() => removeDecision(decision.id)}
-          onEdit={() => editTitle(decision)}
-        />
-      </ListCard>
+      <li>
+        <ListCard onClick={() => send({ type: "DECISION", decision })}>
+          <div slot="left">{decision.title}</div>
+          <More
+            slot="right"
+            onDelete={() => removeDecision(decision.id)}
+            onEdit={() => editTitle(decision)}
+          />
+        </ListCard>
+      </li>
     {/each}
     {#each collaborator as decision (decision.id)}
-      <ListCard onClick={() => send({ type: "DECISION", decision })}>
-        <div slot="left">{decision.title}</div>
-        <span slot="right" class="uk-label">collaborator</span>
-      </ListCard>
+      <li>
+        <ListCard onClick={() => send({ type: "DECISION", decision })}>
+          <div slot="left">{decision.title}</div>
+          <span slot="right" class="uk-label">collaborator</span>
+        </ListCard>
+      </li>
     {/each}
   </ul>
 {/if}

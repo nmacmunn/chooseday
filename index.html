@@ -14,3 +14,14 @@
 </body>
 
 </html>
+
+<style>
+  ul.sortable-list > li.sortable-item {
+    /* add the margin when item is dragged into the top list */
+    margin: 10px 0;
+  }
+  li.sortable-container > ul.sortable-list > li.sortable-item {
+    /* negate the above rule for nested items */
+    margin: 0;
+  }
+</style>
