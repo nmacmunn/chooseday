@@ -1,5 +1,6 @@
 <script lang="ts">
   import _ from "lodash";
+  import type { State } from "xstate";
   import { setRatingsWeights } from "../db";
   import { send } from "../machine";
   import type { Rating } from "../types/data";
@@ -11,20 +12,15 @@
   import SortableItem from "./sortable-item.svelte";
   import SortableList from "./sortable-list.svelte";
 
-  export let state: RatingsState;
+  export let state: State<RatingsState["context"], AppEvent>;
 
   let top: SortableList;
 
   const criteria = state.context.criteria.filter(
     ({ user }) => user.id === state.context.user.id
   );
-  let selectedIndex = 0;
-  $: if (state.context.criterion) {
-    const index = criteria.indexOf(state.context.criterion);
-    if (index > -1) {
-      selectedIndex = index;
-    }
-  }
+
+  $: selectedIndex = Math.max(criteria.indexOf(state.context.criterion), 0);
   $: selected = criteria[selectedIndex];
 
   const optionTitles = _.chain(state.context.options)
@@ -102,7 +98,11 @@
 
 <ul uk-tab>
   {#each criteria as criterion (criterion.id)}
-    <li class={selected === criterion ? "uk-active" : ""}>
+    <li
+      class:uk-active={selected === criterion}
+      class:disabled={selected !== criterion &&
+        !state.can({ type: "CRITERION", criterion })}
+    >
       <a
         href={criterion.id}
         on:click|preventDefault={() => send({ type: "CRITERION", criterion })}
@@ -151,5 +151,8 @@
 <style>
   .title {
     border-bottom: 1px solid;
+  }
+  .disabled {
+    pointer-events: none;
   }
 </style>

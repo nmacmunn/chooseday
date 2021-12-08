@@ -1,5 +1,5 @@
+import { readable } from "svelte/store";
 import { assign, createMachine, interpret } from "xstate";
-import type { Criterion, Decision, Option, Rating, User } from "./types/data";
 import { authListener, getRedirectResult } from "./auth";
 import {
   subscribeCriteria,
@@ -7,10 +7,16 @@ import {
   subscribeOptions,
   subscribeRatings,
 } from "./db";
-import { readable } from "svelte/store";
+import type { Criterion, Decision, Option, Rating, User } from "./types/data";
 import type { AppEvent } from "./types/events";
 import type { AppState } from "./types/states";
-import UIKit from "uikit";
+import { assignCriterion, authError, clearDecision } from "./util/actions";
+import {
+  doneRating,
+  doneRatingCurrent,
+  enoughCriteria,
+  enoughOptions,
+} from "./util/guards";
 
 export interface AppContext {
   criteria?: Criterion[];
@@ -79,9 +85,10 @@ const machine = createMachine<AppContext, AppEvent, AppState>(
                   RATINGS: {
                     target: ".ratings",
                     cond: "enoughCriteria",
+                    actions: "assignCriterion",
                   },
                   CRITERION: {
-                    cond: "hasCriterion",
+                    cond: "doneRatingCurrent",
                     actions: assign({
                       criterion: (_context, event) => event.criterion,
                     }),
@@ -93,11 +100,11 @@ const machine = createMachine<AppContext, AppEvent, AppState>(
                   },
                   COLLABORATORS: {
                     target: ".collaborators",
-                    cond: "enoughOptions",
+                    cond: "doneRating",
                   },
                   RESULTS: {
                     target: ".results",
-                    cond: "enoughRatings",
+                    cond: "doneRating",
                   },
                 },
                 states: {
@@ -112,9 +119,7 @@ const machine = createMachine<AppContext, AppEvent, AppState>(
             on: {
               DECISIONS: {
                 target: ".decisions",
-                actions: assign({
-                  decision: (_context, _event) => undefined,
-                }),
+                actions: "clearDecision",
               },
               DECISION: {
                 target: ".decision",
@@ -151,52 +156,15 @@ const machine = createMachine<AppContext, AppEvent, AppState>(
   },
   {
     actions: {
-      authError() {
-        UIKit.modal.alert(
-          "Failed to link account. This probably means that you have already linked another guest account. Try signing in with your Google account."
-        );
-      },
+      assignCriterion,
+      authError,
+      clearDecision,
     },
     guards: {
-      enoughOptions(context) {
-        return context.options !== undefined && context.options.length > 1;
-      },
-      enoughCriteria(context) {
-        const { user, criteria } = context;
-        return (
-          user !== undefined &&
-          criteria !== undefined &&
-          criteria.filter((criterion) => criterion.user.id === user.id).length >
-            1
-        );
-      },
-      enoughRatings(context) {
-        const { user, ratings } = context;
-        return (
-          user !== undefined &&
-          ratings !== undefined &&
-          ratings.filter((rating) => rating.user.id === user.id).length > 3
-        );
-      },
-      hasCriterion(context, event) {
-        const { user } = context;
-        return (
-          user !== undefined &&
-          event.type === "CRITERION" &&
-          event.criterion.user.id === user.id
-        );
-      },
-      // isCreator({ decision, options, user }) {
-      //   return (
-      //     // must have two options
-      //     options !== undefined &&
-      //     options.length > 1
-      //     // must be the creator
-      //     // decision !== undefined &&
-      //     // user !== undefined &&
-      //     // decision.creator.id === user.id
-      //   );
-      // },
+      doneRating,
+      doneRatingCurrent,
+      enoughOptions,
+      enoughCriteria,
     },
     services: {
       userIdListener() {

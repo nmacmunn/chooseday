@@ -1,5 +1,5 @@
-import type { Criterion, Option, Rating, User } from "../types/data";
-import * as _ from "lodash";
+import type { Criterion, Rating, User } from "../types/data";
+import _ from "lodash";
 
 type CriterionId = string & {};
 type OptionId = string & {};
@@ -55,7 +55,7 @@ function getRatingsScores(
 ): Record<CriterionId, Record<OptionId, number>> {
   return _.chain(ratings)
     .groupBy("criterionId")
-    .mapValues((criterionRatings, criterionId) => {
+    .mapValues((criterionRatings) => {
       const weights = _.map(criterionRatings, "weight");
       const max = Math.max(...weights);
       const min = Math.min(...weights);
@@ -65,23 +65,6 @@ function getRatingsScores(
         .value();
     })
     .value();
-
-  // const ratingsByCriterion = _.groupBy(ratings, "criterionId");
-  // return _.mapValues(ratingsByCriterion, (ratings) => {
-  //   // get the min and max of ratings
-  //   const weights = _.map(ratings, "weight");
-  //   const max = Math.max(...weights);
-  //   const min = Math.min(...weights);
-  //   // calculate a value from 0 to 1 for each rating
-  //   const values = ratings.map(({ optionId, weight }) => ({
-  //     optionId,
-  //     value: (weight - min) / (max - min),
-  //   }));
-
-  //   return Object.fromEntries(
-  //     values.map(({ optionId, value }) => [optionId, value])
-  //   );
-  // });
 }
 
 interface UserScores {
@@ -118,19 +101,6 @@ function getUserScores(criteria: Criterion[], ratings: Rating[]): UserScores {
       };
     })
     .value();
-
-  // const byCriterion = _.mapValues(
-  //   ratingsScores,
-  //   (optionsScores, criterionId) => {
-  //     const { score, criterion } = criteriaScores[criterionId];
-  //     return {
-  //       byOption: _.mapValues(optionsScores, (optionScore) => {
-  //         return score * optionScore;
-  //       }),
-  //       criterion,
-  //     };
-  //   }
-  // );
 
   const byOption = _.chain(ratings)
     .groupBy("optionId")

@@ -62,7 +62,7 @@ export interface RatingsState {
     user: User;
     options: [Option, Option, ...Option[]];
     criteria: [Criterion, Criterion, ...Criterion[]];
-    criterion?: Criterion;
+    criterion: Criterion;
     ratings?: Rating[];
   };
 }
