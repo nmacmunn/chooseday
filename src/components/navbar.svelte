@@ -1,6 +1,6 @@
 <script lang="ts">
   import { state } from "../machine";
-  import { linkWithGoogle, signOut } from "../auth";
+  import { linkWithGoogle, signOut } from "../service/auth";
 </script>
 
 <nav class="uk-navbar-container uk-navbar-transparent uk-margin" uk-navbar>

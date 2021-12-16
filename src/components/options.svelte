@@ -1,8 +1,8 @@
 <script lang="ts">
   import UIkit from "uikit";
-  import { addOption, removeOption, updateOption } from "../db";
+  import { addOption, removeOption, updateOption } from "../service/db";
   import type { Option } from "../types/data";
-  import type { OptionsState } from "../types/states";
+  import type { OptionsState } from "../types/state";
   import Create from "./create.svelte";
   import ListCard from "./list-card.svelte";
   import More from "./more.svelte";
@@ -64,7 +64,7 @@
             {#if isCreator}
               <div class="uk-width-auto">
                 <More
-                  onDelete={() => removeOption(option.id)}
+                  onDelete={() => removeOption(option)}
                   onEdit={() => editTitle(option)}
                 />
               </div>

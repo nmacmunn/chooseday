@@ -1,6 +1,5 @@
 <script lang="ts">
   import { state } from "../machine";
-  import { delay } from "../util/delay";
   import Collaborators from "./collaborators.svelte";
   import Criteria from "./criteria.svelte";
   import Decisions from "./decisions.svelte";
@@ -9,11 +8,9 @@
   import Ratings from "./ratings.svelte";
   import Results from "./results.svelte";
   import SignIn from "./sign-in.svelte";
-
-  const ready = delay();
 </script>
 
-{#if !$ready || $state.matches({ root: "loading" })}
+{#if $state.matches({ root: "loading" })}
   <div class="uk-padding uk-text-center">
     <div uk-spinner="ratio: 3" />
   </div>

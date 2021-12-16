@@ -1,11 +1,11 @@
 <script lang="ts">
   import _ from "lodash";
   import type { State } from "xstate";
-  import { setRatingsWeights } from "../db";
+  import { setRatingsWeights } from "../service/db";
   import { send } from "../machine";
   import type { Rating } from "../types/data";
   import type { AppEvent } from "../types/events";
-  import type { RatingsState } from "../types/states";
+  import type { RatingsState } from "../types/state";
   import ListCard from "./list-card.svelte";
   import NextBack from "./next-back.svelte";
   import PlaceholderCard from "./placeholder-card.svelte";

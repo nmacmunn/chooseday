@@ -1,17 +1,14 @@
 <script lang="ts">
   import Chart from "chart.js/auto";
   import "../../node_modules/uikit/dist/css/uikit.css";
-  import UIkit from "uikit";
-  import Icons from "uikit/dist/js/uikit-icons";
+  import "uikit";
+  import "../../node_modules/uikit/dist/js/uikit-icons";
   import Body from "./body.svelte";
   import Nav from "./nav.svelte";
   import Navbar from "./navbar.svelte";
-  import NextBack from "./next-back.svelte";
-
-  (UIkit.use as any)(Icons);
 
   Object.assign(Chart.defaults.font, {
-    family: window.getComputedStyle(document.documentElement).fontFamily,
+    family: getComputedStyle(document.documentElement).fontFamily,
   });
 </script>
 

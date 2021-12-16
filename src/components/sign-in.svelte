@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { signInAnonymously, signInWithGoogle } from "../auth";
+  import { signInAnonymously, signInWithGoogle } from "../service/auth";
 </script>
 
 <div class="uk-margin-top uk-width-1-2@m uk-margin-auto">

@@ -3,7 +3,7 @@
   import { interpolateCool } from "d3-scale-chromatic";
   import _ from "lodash";
   import type { Option } from "../types/data";
-  import type { ResultsState } from "../types/states";
+  import type { ResultsState } from "../types/state";
   import { getName } from "../util/name";
   import type { Processed } from "../util/results";
   import { beforeUpdate, onMount } from "svelte";

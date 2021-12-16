@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ResultsState } from "../types/states";
+  import type { ResultsState } from "../types/state";
   import { processResults } from "../util/results";
   import NextBack from "./next-back.svelte";
   import ResultsOverall from "./results-overall.svelte";

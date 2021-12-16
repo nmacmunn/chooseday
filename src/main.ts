@@ -6,6 +6,4 @@ if (!target) {
   throw new Error(`Cannot mount application: #${elementId} not found`);
 }
 
-const app = new App({ target });
-
-export default app;
+export default new App({ target });

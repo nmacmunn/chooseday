@@ -1,7 +1,7 @@
 <script lang="ts">
   import UIkit from "uikit";
-  import { updateDecision } from "../db";
-  import type { CollaboratorsState } from "../types/states";
+  import { updateDecision } from "../service/db";
+  import type { CollaboratorsState } from "../types/state";
   import Create from "./create.svelte";
   import ListCard from "./list-card.svelte";
   import More from "./more.svelte";

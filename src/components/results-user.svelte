@@ -4,7 +4,7 @@
   import _ from "lodash";
   import { beforeUpdate, onMount } from "svelte";
   import type { Option } from "../types/data";
-  import type { ResultsState } from "../types/states";
+  import type { ResultsState } from "../types/state";
   import type { Processed } from "../util/results";
 
   export let state: ResultsState;
