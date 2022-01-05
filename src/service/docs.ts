@@ -9,19 +9,31 @@ import {
 import { queryCriteria, queryOptions, queryRatings } from "./query";
 
 export function criterionRef(id?: string) {
-  return doc(criterionCollection, id);
+  if (id) {
+    return doc(criterionCollection, id);
+  }
+  return doc(criterionCollection);
 }
 
 export function decisionRef(id?: string) {
-  return doc(decisionCollection, id);
+  if (id) {
+    return doc(decisionCollection, id);
+  }
+  return doc(decisionCollection);
 }
 
 export function optionRef(id?: string) {
-  return doc(optionCollection, id);
+  if (id) {
+    return doc(optionCollection, id);
+  }
+  return doc(optionCollection);
 }
 
 export function ratingRef(id?: string) {
-  return doc(ratingCollection, id);
+  if (id) {
+    return doc(ratingCollection, id);
+  }
+  return doc(ratingCollection);
 }
 
 /**

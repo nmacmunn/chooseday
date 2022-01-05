@@ -7,6 +7,13 @@ const runScript = () => jest.requireActual("../../src/service/docs");
 describe("docs service", () => {
   beforeEach(() => jest.resetModules());
   describe("criterionRef", () => {
+    it("should return a new criterion collection doc reference", () => {
+      const result = runScript().criterionRef();
+      expect(Firebase().doc).toHaveBeenLastCalledWith(
+        Collection().criterionCollection
+      );
+      expect(result).toBe(Firebase().doc.mock.results[0].value);
+    });
     it("should return a criterion collection doc reference", () => {
       const result = runScript().criterionRef("id");
       expect(Firebase().doc).toHaveBeenLastCalledWith(
@@ -17,6 +24,13 @@ describe("docs service", () => {
     });
   });
   describe("decisionRef", () => {
+    it("should return a new decision collection doc reference", () => {
+      const result = runScript().decisionRef();
+      expect(Firebase().doc).toHaveBeenLastCalledWith(
+        Collection().decisionCollection
+      );
+      expect(result).toBe(Firebase().doc.mock.results[0].value);
+    });
     it("should return a decision collection doc reference", () => {
       const result = runScript().decisionRef("id");
       expect(Firebase().doc).toHaveBeenLastCalledWith(
@@ -27,6 +41,13 @@ describe("docs service", () => {
     });
   });
   describe("optionRef", () => {
+    it("should return a new option collection doc reference", () => {
+      const result = runScript().optionRef();
+      expect(Firebase().doc).toHaveBeenLastCalledWith(
+        Collection().optionCollection
+      );
+      expect(result).toBe(Firebase().doc.mock.results[0].value);
+    });
     it("should return a option collection doc reference", () => {
       const result = runScript().optionRef("id");
       expect(Firebase().doc).toHaveBeenLastCalledWith(
@@ -37,6 +58,13 @@ describe("docs service", () => {
     });
   });
   describe("ratingRef", () => {
+    it("should return a rating collection doc reference", () => {
+      const result = runScript().ratingRef();
+      expect(Firebase().doc).toHaveBeenLastCalledWith(
+        Collection().ratingCollection
+      );
+      expect(result).toBe(Firebase().doc.mock.results[0].value);
+    });
     it("should return a rating collection doc reference", () => {
       const result = runScript().ratingRef("id");
       expect(Firebase().doc).toHaveBeenLastCalledWith(
