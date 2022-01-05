@@ -1,92 +1,74 @@
-import type { Criterion, Decision, Option, Rating, User } from "./data";
+import type {
+  CollaboratorsContext,
+  CriteriaContext,
+  DecisionContext,
+  DecisionsContext,
+  ErrorContext,
+  LoadingContext,
+  OptionsContext,
+  RatingsContext,
+  ResultsContext,
+  SignedinContext,
+  SignedoutContext,
+} from "./context";
+
+export interface ErrorState {
+  value: "error";
+  context: ErrorContext;
+}
 
 export interface LoadingState {
   value: { root: "loading" };
-  context: {};
+  context: LoadingContext;
 }
 
 export interface SignedinState {
   value: { root: "signedIn" };
-  context: {
-    user: User;
-  };
+  context: SignedinContext;
 }
 
 export interface SignedoutState {
   value: { root: "signedOut" };
-  context: {
-    user: undefined;
-  };
+  context: SignedoutContext;
 }
 
 export interface DecisionsState {
   value: { root: { signedIn: "decisions" } };
-  context: {
-    collaborator?: Decision[];
-    creator?: Decision[];
-    user: User;
-  };
+  context: DecisionsContext;
 }
 
 export interface DecisionState {
   value: { root: { signedIn: "decision" } };
-  context: {
-    decision: Decision;
-    user: User;
-  };
+  context: DecisionContext;
 }
 
 export interface OptionsState {
   value: { root: { signedIn: { decision: "options" } } };
-  context: {
-    decision: Decision;
-    user: User;
-    options?: Option[];
-  };
+  context: OptionsContext;
 }
 
 export interface CriteriaState {
   value: { root: { signedIn: { decision: "criteria" } } };
-  context: {
-    decision: Decision;
-    user: User;
-    options: [Option, Option, ...Option[]];
-    criteria?: Criterion[];
-  };
+  context: CriteriaContext;
 }
 
 export interface RatingsState {
   value: { root: { signedIn: { decision: "ratings" } } };
-  context: {
-    decision: Decision;
-    user: User;
-    options: [Option, Option, ...Option[]];
-    criteria: [Criterion, Criterion, ...Criterion[]];
-    criterion: Criterion;
-    ratings?: Rating[];
-  };
+  context: RatingsContext;
 }
 
 export interface CollaboratorsState {
   value: { root: { signedIn: { decision: "collaborators" } } };
-  context: {
-    decision: Decision;
-    user: User;
-  };
+  context: CollaboratorsContext;
 }
 
 export interface ResultsState {
   value: { root: { signedIn: { decision: "results" } } };
-  context: {
-    decision: Decision;
-    user: User;
-    options: [Option, Option, ...Option[]];
-    criteria: [Criterion, Criterion, ...Criterion[]];
-    ratings: [Rating, Rating, Rating, Rating, ...Rating[]];
-  };
+  context: ResultsContext;
 }
 
 export type AppState =
+  | ErrorState
   | LoadingState
   | SignedinState
   | SignedoutState

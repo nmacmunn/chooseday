@@ -1,5 +1,10 @@
 import type { Criterion, Decision, Option, Rating, User } from "./data";
 
+export interface ErrorEvent {
+  type: "ERROR";
+  error: string;
+}
+
 export interface SigninEvent {
   type: "SIGNIN";
   user: User;
@@ -18,10 +23,14 @@ export interface DecisionsEvent {
   type: "DECISIONS";
 }
 
-export interface DecisionsLoadedEvent {
-  type: "DECISIONSLOADED";
-  creator: Decision[];
-  collaborator: Decision[];
+export interface CollaboratorDecisionsLoadedEvent {
+  type: "COLLABORATORDECISIONSLOADED";
+  decisions: Decision[];
+}
+
+export interface CreatorDecisionsLoadedEvent {
+  type: "CREATORDECISIONSLOADED";
+  decisions: Decision[];
 }
 
 export interface OptionsEvent {
@@ -65,11 +74,13 @@ export interface ResultsEvent {
 }
 
 export type AppEvent =
+  | ErrorEvent
   | SigninEvent
   | SignoutEvent
   | DecisionEvent
   | DecisionsEvent
-  | DecisionsLoadedEvent
+  | CollaboratorDecisionsLoadedEvent
+  | CreatorDecisionsLoadedEvent
   | OptionsEvent
   | OptionsLoadedEvent
   | CriteriaEvent

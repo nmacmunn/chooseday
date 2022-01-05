@@ -6,12 +6,11 @@
   import Body from "./body.svelte";
   import Nav from "./nav.svelte";
   import Navbar from "./navbar.svelte";
-  import NextBack from "./next-back.svelte";
 
   (UIkit.use as any)(Icons);
 
   Object.assign(Chart.defaults.font, {
-    family: window.getComputedStyle(document.documentElement).fontFamily,
+    family: getComputedStyle(document.documentElement).fontFamily,
   });
 </script>
 

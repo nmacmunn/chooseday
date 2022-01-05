@@ -1,30 +1,30 @@
 export interface Criterion {
-  id: string;
   decisionId: string;
-  user: User;
+  id: string;
   title: string;
+  user: User;
   weight: number;
 }
 
 export interface Decision {
-  id: string;
   created: number;
   creator: User;
   collaborators: string[];
+  id: string;
   title: string;
 }
 
 export interface Option {
-  id: string;
   created: number;
   decisionId: string;
+  id: string;
   title: string;
 }
 
 export interface Rating {
-  id: string;
   criterionId: string;
   decisionId: string;
+  id: string;
   optionId: string;
   user: User;
   weight: number;

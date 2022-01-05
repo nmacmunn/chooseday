@@ -1,9 +1,13 @@
 <script lang="ts">
   import _ from "lodash";
   import UIkit from "uikit";
-  import { addCriterion, removeCriterion, updateCriterion } from "../db";
+  import {
+    addCriterion,
+    removeCriterion,
+    updateCriterion,
+  } from "../service/db";
   import type { Criterion } from "../types/data";
-  import type { CriteriaState } from "../types/states";
+  import type { CriteriaState } from "../types/state";
   import Create from "./create.svelte";
   import ListCard from "./list-card.svelte";
   import More from "./more.svelte";

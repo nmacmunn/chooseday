@@ -1,9 +1,9 @@
 <script lang="ts">
   import UIkit from "uikit";
-  import { addDecision, removeDecision, updateDecision } from "../db";
+  import { addDecision, removeDecision, updateDecision } from "../service/db";
   import { send } from "../machine";
   import type { Decision } from "../types/data";
-  import type { DecisionsState } from "../types/states";
+  import type { DecisionsState } from "../types/state";
   import Create from "./create.svelte";
   import ListCard from "./list-card.svelte";
   import More from "./more.svelte";
@@ -39,8 +39,10 @@
     }
   }
 
-  $: if (decisionId && state.context.creator) {
-    const decision = state.context.creator.find(({ id }) => decisionId === id);
+  $: if (decisionId && state.context.creatorDecisions) {
+    const decision = state.context.creatorDecisions.find(
+      ({ id }) => decisionId === id
+    );
     if (decision) {
       if (dialog) {
         debugger;
@@ -50,12 +52,14 @@
     }
   }
 
-  $: creator = state.context.creator
-    ? [...state.context.creator].sort((a, b) => b.created - a.created)
+  $: creator = state.context.creatorDecisions
+    ? [...state.context.creatorDecisions].sort((a, b) => b.created - a.created)
     : undefined;
 
-  $: collaborator = state.context.collaborator
-    ? [...state.context.collaborator].sort((a, b) => b.created - a.created)
+  $: collaborator = state.context.collaboratorDecisions
+    ? [...state.context.collaboratorDecisions].sort(
+        (a, b) => b.created - a.created
+      )
     : undefined;
 </script>
 
