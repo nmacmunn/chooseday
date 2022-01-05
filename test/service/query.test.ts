@@ -9,7 +9,7 @@ describe("query service", () => {
     it("should query decisions by collaborator", () => {
       runScript().queryCollaboratorDecisions({ email: "user@example.com" });
       expect(Firestore().where).toHaveBeenCalledWith(
-        "collaborator",
+        "collaborators",
         "array-contains",
         "user@example.com"
       );

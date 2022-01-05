@@ -10,7 +10,7 @@ import {
 export function queryCollaboratorDecisions(user: User) {
   return query(
     decisionCollection,
-    where("collaborator", "array-contains", user.email)
+    where("collaborators", "array-contains", user.email)
   );
 }
 
