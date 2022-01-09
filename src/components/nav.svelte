@@ -35,7 +35,18 @@
   ] as const;
 </script>
 
-<ul class="uk-tab uk-tab-left">
+<ul class="uk-tab uk-tab-left uk-visible@m">
+  {#each items as { event, stateValue, title } (title)}
+    <li
+      class:uk-active={$state.matches(stateValue)}
+      class:uk-disabled={!$state.can(event)}
+    >
+      <a href="#{title}" on:click|preventDefault={() => send(event)}>{title}</a>
+    </li>
+  {/each}
+</ul>
+
+<ul class="uk-tab uk-hidden@m">
   {#each items as { event, stateValue, title } (title)}
     <li
       class:uk-active={$state.matches(stateValue)}

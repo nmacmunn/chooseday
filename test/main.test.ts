@@ -1,7 +1,30 @@
+const App = () => jest.requireMock("../src/components/app");
+const Chart = () => jest.requireMock("chart.js/auto");
+const Icons = () => jest.requireMock("uikit/dist/js/uikit-icons");
+const UIKit = () => jest.requireMock("uikit");
+
 const runScript = () => jest.requireActual("../src/main");
 
 describe("main", () => {
   beforeEach(() => jest.resetModules());
+  it("should load the uikit icons plugin", () => {
+    document.body.innerHTML = `<div id="app" />`;
+    runScript();
+    expect(UIKit().default.use).toHaveBeenCalledWith(Icons().default);
+  });
+  it("should get the document font family", () => {
+    document.body.innerHTML = `<div id="app" />`;
+    const spy = jest.spyOn(window, "getComputedStyle");
+    runScript();
+    expect(spy).toHaveBeenCalledWith(document.documentElement);
+  });
+  it("should set the default chart font", () => {
+    document.body.innerHTML = `<div id="app" />`;
+    const spy = jest.spyOn(window, "getComputedStyle");
+    spy.mockReturnValue({ fontFamily: "font" } as CSSStyleDeclaration);
+    runScript();
+    expect(Chart().default.defaults.font.family).toBe("font");
+  });
   it("should get #app from the document", () => {
     document.body.innerHTML = `<div id="app" />`;
     const spy = jest.spyOn(document, "getElementById");
@@ -15,15 +38,15 @@ describe("main", () => {
   it("should instantiate an App component with target #app", () => {
     document.body.innerHTML = `<div id="app" />`;
     const spy = jest.spyOn(document, "getElementById");
-    const AppMock = jest.requireMock("../src/components/app").default;
     runScript();
-    expect(AppMock).toHaveBeenCalledWith({ target: spy.mock.results[0].value });
+    expect(App().default).toHaveBeenCalledWith({
+      target: spy.mock.results[0].value,
+    });
   });
   it("should export the app instance", () => {
     document.body.innerHTML = `<div id="app" />`;
-    const AppMock = jest.requireMock("../src/components/app").default;
     const defaultExport = runScript().default;
-    expect(defaultExport).toBe(AppMock.mock.instances[0]);
+    expect(defaultExport).toBe(App().default.mock.instances[0]);
   });
 });
 

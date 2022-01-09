@@ -77,28 +77,26 @@
   });
 </script>
 
-<div class="uk-grid uk-grid-small uk-child-width-1-2" uk-grid>
-  <div>
+<div class="uk-grid uk-grid-small" uk-grid>
+  <div class="uk-width-1-2@m">
     <div class="uk-card uk-card-default uk-card-small uk-card-body">
       <canvas bind:this={chartEl} />
     </div>
   </div>
-  <ul
-    class="uk-grid-small uk-child-width-1-2"
-    uk-grid
-    uk-height-match="target: > li > .uk-card"
-  >
-    {#each sorted as option, i (option.id)}
-      <li>
-        <div class="uk-card uk-card-default uk-card-small uk-card-body">
-          <div class="uk-flex uk-flex-top">
-            <span class="uk-margin-small-right">#{i + 1}</span>
-            <span>{option.title}</span>
+  <div class="uk-width-1-2@m">
+    <ul class="uk-grid-small" uk-grid uk-height-match="target: > li > .uk-card">
+      {#each sorted as option, i (option.id)}
+        <li class="uk-width-1-2@s">
+          <div class="uk-card uk-card-default uk-card-small uk-card-body">
+            <div class="uk-flex uk-flex-top">
+              <span class="uk-margin-small-right">#{i + 1}</span>
+              <span>{option.title}</span>
+            </div>
+            <hr />
+            <p class="uk-text-small">{description(option)}</p>
           </div>
-          <hr />
-          <p class="uk-text-small">{description(option)}</p>
-        </div>
-      </li>
-    {/each}
-  </ul>
+        </li>
+      {/each}
+    </ul>
+  </div>
 </div>

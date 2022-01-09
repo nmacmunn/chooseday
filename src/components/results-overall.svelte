@@ -90,34 +90,37 @@
 </script>
 
 <div class="uk-grid uk-grid-small" uk-grid>
-  <ul class="uk-grid-small uk-width-1-2" uk-grid>
-    {#each sorted as option, i (option.id)}
-      <li
-        class:uk-width-1-1:uk-text-large={i === 0}
-        class:uk-width-1-2={i !== 0}
-      >
-        <div
-          class="uk-card uk-card-default uk-card-small uk-card-body uk-height-small"
+  <div class="uk-width-1-2@m">
+    <ul class="uk-grid-small" uk-grid>
+      {#each sorted as option, i (option.id)}
+        <li
+          class:uk-width-1-1:uk-text-large={i === 0}
+          class:uk-width-1-2@s={i !== 0}
         >
-          <div class:uk-text-large={i === 0} class="uk-flex uk-flex-top">
-            <span class="uk-margin-small-right">#{i + 1}</span>
-            <span class="uk-margin-small-right uk-width-expand"
-              >{option.title}</span
-            >
-            <span
-              class="badge"
-              class:uk-text-success={byOption[option.id] > 0.7}
-              class:uk-text-danger={byOption[option.id] < 0.3}
-              >{Math.round(byOption[option.id] * 100)}</span
-            >
+          <div
+            class="uk-card uk-card-default uk-card-small uk-card-body uk-height-small"
+          >
+            <div class:uk-text-large={i === 0} class="uk-flex uk-flex-top">
+              <span class="uk-margin-small-right">#{i + 1}</span>
+              <span class="uk-margin-small-right uk-width-expand"
+                >{option.title}</span
+              >
+              <span
+                class="badge"
+                class:uk-text-success={byOption[option.id] > 0.7}
+                class:uk-text-danger={byOption[option.id] < 0.3}
+                >{Math.round(byOption[option.id] * 100)}</span
+              >
+            </div>
+            <hr />
+            <p class="uk-text-small">{description(option)}</p>
           </div>
-          <hr />
-          <p class="uk-text-small">{description(option)}</p>
-        </div>
-      </li>
-    {/each}
-  </ul>
-  <div class="uk-width-1-2">
+        </li>
+      {/each}
+    </ul>
+  </div>
+
+  <div class="uk-width-1-2@m">
     <div class="uk-card uk-card-default uk-card-small uk-card-body">
       <canvas bind:this={chartEl} />
     </div>
