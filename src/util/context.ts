@@ -1,51 +1,67 @@
 import type {
   AppContext,
   CriteriaContext,
-  DecisionContext,
+  DecisionLoadedContext,
+  DecisionLoadingContext,
+  DecisionsLoadedContext,
+  DecisionsLoadingContext,
   ErrorContext,
   RatingsContext,
-  SignedinContext,
 } from "../types/context";
-
-export function isSignedinContext(
-  context: AppContext
-): context is SignedinContext {
-  return context.user !== undefined;
-}
-
-export function isDecisionContext(
-  context: AppContext
-): context is DecisionContext {
-  return context.decision !== undefined && context.user !== undefined;
-}
 
 export function isCriteriaContext(
   context: AppContext
 ): context is CriteriaContext {
+  return isOptionsContext(context) && context.options.length >= 2;
+}
+
+export function isDecisionLoadedContext(
+  context: AppContext
+): context is DecisionLoadedContext {
   return (
-    context.decision !== undefined &&
+    isDecisionLoadingContext(context) &&
+    context.criteria !== undefined &&
     context.options !== undefined &&
-    context.options.length >= 2 &&
-    context.user !== undefined
+    context.ratings !== undefined
   );
+}
+
+export function isDecisionLoadingContext(
+  context: AppContext
+): context is DecisionLoadingContext {
+  return context.decision !== undefined && context.user !== undefined;
+}
+
+export function isDecisionsLoadedContext(
+  context: AppContext
+): context is DecisionsLoadedContext {
+  return (
+    isDecisionsLoadingContext(context) &&
+    context.collaboratorDecisions !== undefined &&
+    context.creatorDecisions !== undefined
+  );
+}
+
+export function isDecisionsLoadingContext(
+  context: AppContext
+): context is DecisionsLoadingContext {
+  return context.user !== undefined;
 }
 
 export function isErrorContext(context: AppContext): context is ErrorContext {
   return context.error !== undefined;
 }
 
+export const isOptionsContext = isDecisionLoadedContext;
+
 export function isRatingsContext(
   context: AppContext
 ): context is RatingsContext {
   return (
-    context.criteria !== undefined &&
+    isCriteriaContext(context) &&
     context.criteria.length >= 2 &&
     context.criterion !== undefined &&
-    context.decision !== undefined &&
-    context.options !== undefined &&
     context.options.length >= 2 &&
-    context.ratings !== undefined &&
-    context.ratings.length >= 4 &&
-    context.user !== undefined
+    context.ratings.length >= 4
   );
 }

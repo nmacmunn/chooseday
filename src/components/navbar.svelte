@@ -12,16 +12,18 @@
       <div class="uk-navbar-item">
         <ul class="uk-iconnav">
           <li>
-            <!-- svelte-ignore a11y-missing-content -->
             <a
               href="https://github.com/nmacmunn/indecisionator"
               target="_blank"
-              uk-icon="icon: github"
-            />
+              aria-label="Github"
+            >
+              <span aria-hidden uk-icon="github" />
+            </a>
           </li>
           <li>
-            <!-- svelte-ignore a11y-missing-content -->
-            <a href="#signin" uk-icon="icon: user" />
+            <a href="#user" aria-label="User">
+              <span aria-hidden uk-icon="user" />
+            </a>
             <div class="uk-navbar-dropdown">
               <ul class="uk-nav uk-navbar-dropdown-nav uk-nav-right">
                 <li class="uk-text-light uk-text-small">

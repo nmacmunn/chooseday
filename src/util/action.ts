@@ -1,9 +1,9 @@
-import UIkit from "uikit";
 import { assign } from "xstate";
 import type { BaseContext } from "../types/context";
 import type {
   AppEvent,
   CollaboratorDecisionsLoadedEvent,
+  CreatingEvent,
   CreatorDecisionsLoadedEvent,
   CriteriaLoadedEvent,
   CriterionEvent,
@@ -17,7 +17,7 @@ import type {
 } from "../types/events";
 
 /**
- * Return a function that returns the specified key from events.
+ * Return a function that returns the specified key from an event.
  * @private
  */
 function pick<T extends AppEvent, K extends keyof T>(key: K) {
@@ -27,11 +27,11 @@ function pick<T extends AppEvent, K extends keyof T>(key: K) {
 /**
  * Show an alert when there is an authentication error.
  */
-export function authError() {
-  UIkit.modal.alert(
-    "Failed to link account. This probably means that you have already linked another guest account. Try signing in with your Google account."
-  );
-}
+// export function authError() {
+//   UIkit.modal.alert(
+//     "Failed to link account. This probably means that you have already linked another guest account. Try signing in with your Google account."
+//   );
+// }
 
 export const clearDecision = assign<BaseContext, DecisionsEvent>({
   criteria: undefined,
@@ -75,6 +75,10 @@ export const setCriterion = assign<BaseContext, CriterionEvent>({
 
 export const setDecision = assign<BaseContext, DecisionEvent>({
   decision: pick("decision"),
+});
+
+export const setDecisionId = assign<BaseContext, CreatingEvent>({
+  decisionId: pick("decisionId"),
 });
 
 export const setError = assign<BaseContext, ErrorEvent>({

@@ -1,67 +1,86 @@
+import { AppContext } from "../../src/types/context";
+import { FakeDecision, FakeOption, FakeUser } from "../helpers/fake";
+
+jest.unmock("../helpers/fake");
+
 const runScript = () => jest.requireActual("../../src/util/context");
 
 describe("context util", () => {
   beforeEach(() => jest.resetModules());
-  describe("isSignedinContext", () => {
-    it("should be false if user is undefined", () => {
-      const result = runScript().isSignedinContext({});
-      expect(result).toBe(false);
-    });
-    it("should be true", () => {
-      const result = runScript().isSignedinContext({
-        user: {},
-      });
-      expect(result).toBe(true);
-    });
-  });
-  describe("isDecisionContext", () => {
-    it("should be false if decision is undefined", () => {
-      const result = runScript().isDecisionContext({
-        user: {},
-      });
-      expect(result).toBe(false);
-    });
-    it("should be false if user is undefined", () => {
-      const result = runScript().isDecisionContext({
-        decision: {},
-      });
-      expect(result).toBe(false);
-    });
-    it("should be true", () => {
-      const result = runScript().isDecisionContext({
-        decision: {},
-        user: {},
-      });
-      expect(result).toBe(true);
-    });
-  });
   describe("isCriteriaContext", () => {
+    let context: AppContext;
+    beforeEach(() => {
+      context = {
+        criteria: [],
+        decision: new FakeDecision(),
+        options: [new FakeOption(), new FakeOption()],
+        ratings: [],
+        user: new FakeUser(),
+      };
+    });
+    it("should be false if criteria is undefined", () => {
+      context.criteria = undefined;
+      const result = runScript().isCriteriaContext(context);
+      expect(result).toBe(false);
+    });
     it("should be false if decision is undefined", () => {
-      const result = runScript().isCriteriaContext({});
+      context.decision = undefined;
+      const result = runScript().isCriteriaContext(context);
       expect(result).toBe(false);
     });
     it("should be false if options is undefined", () => {
-      const result = runScript().isCriteriaContext({ decision: {} });
+      context.options = undefined;
+      const result = runScript().isCriteriaContext(context);
       expect(result).toBe(false);
     });
     it("should be false if there are fewer than two options", () => {
-      const result = runScript().isCriteriaContext({
-        decision: {},
-        options: [],
+      context.options.length = 1;
+      const result = runScript().isCriteriaContext(context);
+      expect(result).toBe(false);
+    });
+    it("should be false if ratings is undefined", () => {
+      context.user = undefined;
+      const result = runScript().isCriteriaContext(context);
+      expect(result).toBe(false);
+    });
+    it("should be false if user is undefined", () => {
+      context.user = undefined;
+      const result = runScript().isCriteriaContext(context);
+      expect(result).toBe(false);
+    });
+    it("should be true", () => {
+      const result = runScript().isCriteriaContext(context);
+      expect(result).toBe(true);
+    });
+  });
+  describe("isDecisionLoadingContext", () => {
+    it("should be false if decision is undefined", () => {
+      const result = runScript().isDecisionLoadingContext({
+        user: {},
       });
       expect(result).toBe(false);
     });
     it("should be false if user is undefined", () => {
-      const result = runScript().isCriteriaContext({
+      const result = runScript().isDecisionLoadingContext({
         decision: {},
-        options: [{}, {}],
       });
       expect(result).toBe(false);
     });
     it("should be true", () => {
-      const result = runScript().isCriteriaContext({
+      const result = runScript().isDecisionLoadingContext({
         decision: {},
-        options: [{}, {}],
+        user: {},
+      });
+      expect(result).toBe(true);
+    });
+  });
+  describe("isDecisionsLoadingContext", () => {
+    it("should be false if user is undefined", () => {
+      const result = runScript().isDecisionsLoadingContext({});
+      expect(result).toBe(false);
+    });
+    it("should be true", () => {
+      const result = runScript().isDecisionsLoadingContext({
         user: {},
       });
       expect(result).toBe(true);

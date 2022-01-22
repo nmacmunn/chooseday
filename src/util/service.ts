@@ -1,5 +1,5 @@
 import type { Sender } from "xstate";
-import { authListener } from "../service/auth";
+import { authListener, getRedirectResult } from "../service/auth";
 import {
   subscribeCollaboratorDecisions,
   subscribeCreatorDecisions,
@@ -10,11 +10,11 @@ import {
 import type { AppContext } from "../types/context";
 import type { AppEvent } from "../types/events";
 import { hasEmail } from "./user";
-import { isDecisionContext, isSignedinContext } from "./context";
+import { isDecisionLoadingContext, isDecisionsLoadingContext } from "./context";
 
 export function decisionListener(context: AppContext) {
   return (send: Sender<AppEvent>) => {
-    if (!isDecisionContext(context)) {
+    if (!isDecisionLoadingContext(context)) {
       send({ type: "ERROR", error: "Failed to load decision" });
       return;
     }
@@ -37,7 +37,7 @@ export function decisionListener(context: AppContext) {
 
 export function decisionsListener(context: AppContext) {
   return (send: Sender<AppEvent>) => {
-    if (!isSignedinContext(context)) {
+    if (!isDecisionsLoadingContext(context)) {
       send({ type: "ERROR", error: "Failed to load decisions" });
       return;
     }
@@ -61,6 +61,18 @@ export function decisionsListener(context: AppContext) {
       unsubCollaborator();
       unsubCreator();
     };
+  };
+}
+
+export function redirectResultListener() {
+  return (send: Sender<AppEvent>) => {
+    getRedirectResult()
+      .then(() => {
+        send({ type: "REDIRECTRESULT" });
+      })
+      .catch((error) => {
+        send({ type: "ERROR", error });
+      });
   };
 }
 

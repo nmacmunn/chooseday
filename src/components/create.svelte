@@ -22,13 +22,14 @@
     </div>
     <form on:submit|preventDefault={callback}>
       <div class="uk-inline uk-width-1-1">
-        <!-- svelte-ignore a11y-missing-content -->
         <a
           class="uk-form-icon uk-form-icon-flip"
           href="create"
-          uk-icon="icon: plus"
+          aria-label="create"
           on:click|preventDefault={callback}
-        />
+        >
+          <span aria-hidden uk-icon="plus" />
+        </a>
         <input
           class="uk-input"
           name="create"

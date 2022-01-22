@@ -4,10 +4,8 @@
   import NextBack from "./next-back.svelte";
   import ResultsOverall from "./results-overall.svelte";
   import ResultsUser from "./results-user.svelte";
-
   export let state: ResultsState;
-
-  $: processed = processResults(state.context.criteria, state.context.ratings);
+  $: processed = processResults(state.context);
 </script>
 
 <h5 class="uk-text-light uk-heading-line">

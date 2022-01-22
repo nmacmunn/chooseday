@@ -1,32 +1,18 @@
 <script lang="ts">
   import _ from "lodash";
+  import type { RatingsContext } from "src/types/context";
   import type { State } from "xstate";
-  import { setRatingsWeights } from "../service/db";
   import { send } from "../machine";
-  import type { Rating } from "../types/data";
+  import { setRatingsWeights } from "../service/db";
   import type { AppEvent } from "../types/events";
-  import type { RatingsState } from "../types/state";
   import ListCard from "./list-card.svelte";
   import NextBack from "./next-back.svelte";
-  import PlaceholderCard from "./placeholder-card.svelte";
   import SortableItem from "./sortable-item.svelte";
   import SortableList from "./sortable-list.svelte";
 
-  export let state: State<RatingsState["context"], AppEvent>;
+  export let state: State<RatingsContext, AppEvent, any, any>;
 
   let top: SortableList;
-
-  const criteria = state.context.criteria.filter(
-    ({ user }) => user.id === state.context.user.id
-  );
-
-  $: selectedIndex = Math.max(criteria.indexOf(state.context.criterion), 0);
-  $: selected = criteria[selectedIndex];
-
-  const optionTitles = _.chain(state.context.options)
-    .keyBy("id")
-    .mapValues("title")
-    .value();
 
   function onSorted() {
     const groups = top.sorted().reverse();
@@ -46,26 +32,26 @@
     }
   }
 
-  interface Sorted {
-    all: Rating[];
-    byWeight: Record<number, Rating[]>;
-    weights: number[];
-  }
+  const criteriaFilter = _.matchesProperty("user.id", state.context.user.id);
 
-  let sorted: Sorted | undefined;
-  $: if (state.context.ratings) {
-    const all = _.chain(state.context.ratings)
-      .filter(_.matchesProperty("criterionId", selected.id))
-      .orderBy("weight", "desc")
-      .value();
-    const byWeight = _.groupBy(all, "weight");
-    const weights = _.keys(byWeight).map(Number).sort().reverse();
-    sorted = {
-      all,
-      byWeight,
-      weights,
-    };
-  }
+  $: criteria = state.context.criteria.filter(criteriaFilter);
+  $: selected = state.context.criterion;
+  $: selectedIndex = criteria.indexOf(selected);
+  $: optionTitles = _.chain(state.context.options)
+    .keyBy("id")
+    .mapValues("title")
+    .value();
+  $: all = _.chain(state.context.ratings)
+    .filter(_.matchesProperty("criterionId", selected.id))
+    .orderBy("weight", "desc")
+    .value();
+  $: byWeight = _.groupBy(all, "weight");
+  $: weights = _.keys(byWeight).map(Number).sort().reverse();
+  $: sorted = {
+    all,
+    byWeight,
+    weights,
+  };
 
   let next: { label: string; event: AppEvent };
   $: if (selectedIndex + 1 < criteria.length) {
@@ -118,33 +104,26 @@
   <span>from best to worst</span>
 </h5>
 
-{#if !sorted}
-  <PlaceholderCard>
-    <span uk-spinner class="uk-margin-right" />
-    <span>Loading ratings</span>
-  </PlaceholderCard>
-{:else}
-  <div class="uk-text-muted uk-text-center uk-margin"><b>Best</b> option</div>
-  <SortableList bind:this={top}>
-    {#each sorted.weights as weight, i ({})}
-      <SortableItem>
-        <SortableList on:sorted={onSorted}>
-          {#each sorted.byWeight[weight] as rating (rating)}
-            <SortableItem data={rating}>
-              <ListCard>
-                <svelte:fragment slot="left">
-                  <span uk-icon="table" class="uk-margin-right" />
-                  <span>{optionTitles[rating.optionId]}</span>
-                </svelte:fragment>
-              </ListCard>
-            </SortableItem>
-          {/each}
-        </SortableList>
-      </SortableItem>
-    {/each}
-  </SortableList>
-  <div class="uk-text-muted uk-text-center uk-margin"><b>Worst</b> option</div>
-{/if}
+<div class="uk-text-muted uk-text-center uk-margin"><b>Best</b> option</div>
+<SortableList bind:this={top}>
+  {#each sorted.weights as weight, i ({})}
+    <SortableItem>
+      <SortableList on:sorted={onSorted}>
+        {#each sorted.byWeight[weight] as rating (rating)}
+          <SortableItem data={rating}>
+            <ListCard>
+              <svelte:fragment slot="left">
+                <span uk-icon="table" class="uk-margin-right" />
+                <span>{optionTitles[rating.optionId]}</span>
+              </svelte:fragment>
+            </ListCard>
+          </SortableItem>
+        {/each}
+      </SortableList>
+    </SortableItem>
+  {/each}
+</SortableList>
+<div class="uk-text-muted uk-text-center uk-margin"><b>Worst</b> option</div>
 
 <NextBack {back} {next} />
 

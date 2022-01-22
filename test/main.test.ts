@@ -1,7 +1,10 @@
 const App = () => jest.requireMock("../src/components/app");
-const Chart = () => jest.requireMock("chart.js/auto");
+const Chart = () => jest.requireMock("chart.js/auto").default;
 const Icons = () => jest.requireMock("uikit/dist/js/uikit-icons");
-const UIKit = () => jest.requireMock("uikit");
+const UIKit = () => jest.requireMock("uikit").default;
+
+jest.unmock("svelte/internal");
+jest.unmock("xstate");
 
 const runScript = () => jest.requireActual("../src/main");
 
@@ -10,7 +13,7 @@ describe("main", () => {
   it("should load the uikit icons plugin", () => {
     document.body.innerHTML = `<div id="app" />`;
     runScript();
-    expect(UIKit().default.use).toHaveBeenCalledWith(Icons().default);
+    expect(UIKit().use).toHaveBeenCalledWith(Icons());
   });
   it("should get the document font family", () => {
     document.body.innerHTML = `<div id="app" />`;
@@ -23,7 +26,7 @@ describe("main", () => {
     const spy = jest.spyOn(window, "getComputedStyle");
     spy.mockReturnValue({ fontFamily: "font" } as CSSStyleDeclaration);
     runScript();
-    expect(Chart().default.defaults.font.family).toBe("font");
+    expect(Chart().defaults.font.family).toBe("font");
   });
   it("should get #app from the document", () => {
     document.body.innerHTML = `<div id="app" />`;

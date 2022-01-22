@@ -1,66 +1,49 @@
 <script lang="ts">
-  import UIkit from "uikit";
   import { addDecision, removeDecision, updateDecision } from "../service/db";
   import { send } from "../machine";
   import type { Decision } from "../types/data";
-  import type { DecisionsState } from "../types/state";
+  import type { DecisionsLoadedState } from "../types/state";
   import Create from "./create.svelte";
   import ListCard from "./list-card.svelte";
   import More from "./more.svelte";
-  import PlaceholderCard from "./placeholder-card.svelte";
+  import PromptModal from "./prompt-modal.svelte";
 
-  export let state: DecisionsState;
+  export let state: DecisionsLoadedState;
 
-  let decisionId: string | undefined;
+  let onModalSubmit: (value: string) => void = () => undefined;
+  let modal: PromptModal;
+  let modalValue: string;
 
-  async function onClick() {
-    const title = await UIkit.modal.prompt("Decision title", "");
-    if (title) {
-      addAndLoad(title);
+  function addAndLoad(title: string) {
+    if (!title) {
+      return;
     }
+    const decisionId = addDecision(state.context.user, title);
+    send({ type: "CREATING", decisionId });
   }
 
-  let dialog: any;
-  async function addAndLoad(title: string) {
-    dialog = await UIkit.modal.dialog(`
-      <div class="uk-modal-body">
-        <span uk-spinner class="uk-margin-right"></span>
-        <span>Creating ${title}</span>
-      </div>
-      `);
-    decisionId = await addDecision(state.context.user, title);
+  function onCreateClick() {
+    modalValue = "";
+    onModalSubmit = addAndLoad;
+    modal.show();
   }
 
-  async function editTitle(decision: Decision) {
-    const result = await UIkit.modal.prompt("Title", decision.title);
-    if (typeof result == "string") {
-      decision.title = result;
+  function onEditClick(decision: Decision) {
+    modalValue = decision.title;
+    onModalSubmit = (value) => {
+      decision.title = value;
       updateDecision(decision);
-    }
+    };
+    modal.show();
   }
 
-  $: if (decisionId && state.context.creatorDecisions) {
-    const decision = state.context.creatorDecisions.find(
-      ({ id }) => decisionId === id
-    );
-    if (decision) {
-      if (dialog) {
-        debugger;
-        UIkit.modal(dialog.$el).hide();
-      }
-      send({ type: "DECISION", decision });
-    }
-  }
+  $: creator = [...state.context.creatorDecisions].sort(
+    (a, b) => b.created - a.created
+  );
 
-  $: creator = state.context.creatorDecisions
-    ? [...state.context.creatorDecisions].sort((a, b) => b.created - a.created)
-    : undefined;
-
-  $: collaborator = state.context.collaboratorDecisions
-    ? [...state.context.collaboratorDecisions].sort(
-        (a, b) => b.created - a.created
-      )
-    : undefined;
+  $: collaborator = [...state.context.collaboratorDecisions].sort(
+    (a, b) => b.created - a.created
+  );
 </script>
 
 <Create
@@ -73,15 +56,10 @@
   <span class="uk-margin-left">Open an existing decision</span>
 </h5>
 
-{#if !creator || !collaborator}
-  <PlaceholderCard>
-    <span uk-spinner class="uk-margin-right" />
-    <span>Loading your decisions</span>
-  </PlaceholderCard>
-{:else if creator.length === 0 && collaborator.length === 0}
+{#if creator.length === 0 && collaborator.length === 0}
   <div class="uk-card uk-placeholder uk-card-body uk-text-center">
     <p>Create your first decision to get started</p>
-    <button class="uk-button uk-button-primary" on:click={onClick}>
+    <button class="uk-button uk-button-primary" on:click={onCreateClick}>
       Create
     </button>
   </div>
@@ -94,7 +72,7 @@
           <More
             slot="right"
             onDelete={() => removeDecision(decision.id)}
-            onEdit={() => editTitle(decision)}
+            onEdit={() => onEditClick(decision)}
           />
         </ListCard>
       </li>
@@ -109,3 +87,10 @@
     {/each}
   </ul>
 {/if}
+
+<PromptModal
+  bind:this={modal}
+  bind:value={modalValue}
+  onSubmit={onModalSubmit}
+  title="Decision Title"
+/>

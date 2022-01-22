@@ -1,5 +1,4 @@
 <script lang="ts">
-  import UIkit from "uikit";
   import { addOption, removeOption, updateOption } from "../service/db";
   import type { Option } from "../types/data";
   import type { OptionsState } from "../types/state";
@@ -8,19 +7,25 @@
   import More from "./more.svelte";
   import NextBack from "./next-back.svelte";
   import PlaceholderCard from "./placeholder-card.svelte";
+  import PromptModal from "./prompt-modal.svelte";
 
   export let state: OptionsState;
 
-  $: sorted = state.context.options
-    ? [...state.context.options].sort((a, b) => a.created - b.created)
-    : undefined;
+  let modal: PromptModal;
+  let onModalSubmit: (value: string) => void = () => undefined;
+  let modalValue: string;
+
+  $: sorted = [...state.context.options].sort((a, b) => a.created - b.created);
 
   async function editTitle(option: Option) {
-    const title = await UIkit.modal.prompt("Title", option.title);
-    if (typeof title == "string") {
-      option.title = title;
-      updateOption(option);
-    }
+    modalValue = option.title;
+    onModalSubmit = (title) => {
+      if (title) {
+        option.title = title;
+        updateOption(option);
+      }
+    };
+    modal.show();
   }
 
   const { decision, user } = state.context;
@@ -39,44 +44,42 @@
   <span class="uk-margin-left">Options you're considering</span>
 </h5>
 
-{#if !sorted}
+{#if sorted.length < 2}
   <PlaceholderCard>
-    <span uk-spinner class="uk-margin-right" />
-    <span>Loading your options</span>
+    <span uk-icon="info" class="uk-margin-right" />
+    <span
+      >Create at least {sorted.length ? "one more option" : "two options"}</span
+    >
   </PlaceholderCard>
-{:else}
-  {#if sorted.length < 2}
-    <PlaceholderCard>
-      <span uk-icon="info" class="uk-margin-right" />
-      <span
-        >Create at least {sorted.length
-          ? "one more option"
-          : "two options"}</span
-      >
-    </PlaceholderCard>
-  {/if}
-  <ul class="uk-grid-small uk-child-width-1-1" uk-grid>
-    {#each sorted as option (option.id)}
-      <li>
-        <ListCard>
-          <span slot="left">{option.title}</span>
-          <span slot="right">
-            {#if isCreator}
-              <div class="uk-width-auto">
-                <More
-                  onDelete={() => removeOption(option)}
-                  onEdit={() => editTitle(option)}
-                />
-              </div>
-            {/if}
-          </span>
-        </ListCard>
-      </li>
-    {/each}
-  </ul>
 {/if}
+<ul class="uk-grid-small uk-child-width-1-1" uk-grid>
+  {#each sorted as option (option.id)}
+    <li>
+      <ListCard>
+        <span slot="left">{option.title}</span>
+        <span slot="right">
+          {#if isCreator}
+            <div class="uk-width-auto">
+              <More
+                onDelete={() => removeOption(option)}
+                onEdit={() => editTitle(option)}
+              />
+            </div>
+          {/if}
+        </span>
+      </ListCard>
+    </li>
+  {/each}
+</ul>
 
 <NextBack
   back={{ label: "Decisions", event: { type: "DECISIONS" } }}
   next={{ label: "Criteria", event: { type: "CRITERIA" } }}
+/>
+
+<PromptModal
+  bind:this={modal}
+  bind:value={modalValue}
+  onSubmit={onModalSubmit}
+  title="Option Title"
 />

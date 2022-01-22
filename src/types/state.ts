@@ -1,81 +1,95 @@
 import type {
   CollaboratorsContext,
+  CreatingContext,
   CriteriaContext,
-  DecisionContext,
-  DecisionsContext,
+  DecisionLoadingContext,
+  DecisionsLoadedContext,
+  DecisionsLoadingContext,
   ErrorContext,
-  LoadingContext,
   OptionsContext,
+  PreAuthContext,
   RatingsContext,
   ResultsContext,
-  SignedinContext,
-  SignedoutContext,
+  SignedOutContext,
+  SigningInContext,
 } from "./context";
+
+export type AppState =
+  | CollaboratorsState
+  | CreatingState
+  | CriteriaState
+  | DecisionLoadingState
+  | DecisionsLoadedState
+  | DecisionsLoadingState
+  | ErrorState
+  | OptionsState
+  | PreAuthState
+  | RatingsState
+  | ResultsState
+  | SignedOutState
+  | SigningInState;
+
+export interface CollaboratorsState {
+  value: { auth: { signedIn: { decision: { loaded: "collaborators" } } } };
+  context: CollaboratorsContext;
+}
+
+export interface CreatingState {
+  value: { auth: { signedIn: { decisions: "creating" } } };
+  context: CreatingContext;
+}
+
+export interface CriteriaState {
+  value: { auth: { signedIn: { decision: { loaded: "criteria" } } } };
+  context: CriteriaContext;
+}
+
+export interface DecisionLoadingState {
+  value: { auth: { signedIn: { decision: "loading" } } };
+  context: DecisionLoadingContext;
+}
+
+export interface DecisionsLoadedState {
+  value: { auth: { signedIn: { decisions: "loaded" } } };
+  context: DecisionsLoadedContext;
+}
+
+export interface DecisionsLoadingState {
+  value: { auth: { signedIn: { decisions: "loading" } } };
+  context: DecisionsLoadingContext;
+}
 
 export interface ErrorState {
   value: "error";
   context: ErrorContext;
 }
 
-export interface LoadingState {
-  value: { root: "loading" };
-  context: LoadingContext;
-}
-
-export interface SignedinState {
-  value: { root: "signedIn" };
-  context: SignedinContext;
-}
-
-export interface SignedoutState {
-  value: { root: "signedOut" };
-  context: SignedoutContext;
-}
-
-export interface DecisionsState {
-  value: { root: { signedIn: "decisions" } };
-  context: DecisionsContext;
-}
-
-export interface DecisionState {
-  value: { root: { signedIn: "decision" } };
-  context: DecisionContext;
-}
-
 export interface OptionsState {
-  value: { root: { signedIn: { decision: "options" } } };
+  value: { auth: { signedIn: { decision: { loaded: "options" } } } };
   context: OptionsContext;
 }
 
-export interface CriteriaState {
-  value: { root: { signedIn: { decision: "criteria" } } };
-  context: CriteriaContext;
+export interface PreAuthState {
+  value: "preAuth";
+  context: PreAuthContext;
 }
 
 export interface RatingsState {
-  value: { root: { signedIn: { decision: "ratings" } } };
+  value: { auth: { signedIn: { decision: { loaded: "ratings" } } } };
   context: RatingsContext;
 }
 
-export interface CollaboratorsState {
-  value: { root: { signedIn: { decision: "collaborators" } } };
-  context: CollaboratorsContext;
-}
-
 export interface ResultsState {
-  value: { root: { signedIn: { decision: "results" } } };
+  value: { auth: { signedIn: { decision: { loaded: "results" } } } };
   context: ResultsContext;
 }
 
-export type AppState =
-  | ErrorState
-  | LoadingState
-  | SignedinState
-  | SignedoutState
-  | DecisionsState
-  | DecisionState
-  | OptionsState
-  | CriteriaState
-  | RatingsState
-  | CollaboratorsState
-  | ResultsState;
+export interface SigningInState {
+  value: { auth: "signingIn" };
+  context: SigningInContext;
+}
+
+export interface SignedOutState {
+  value: { auth: "signedOut" };
+  context: SignedOutContext;
+}

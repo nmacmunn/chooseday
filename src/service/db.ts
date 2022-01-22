@@ -1,8 +1,10 @@
 import {
   addDoc,
+  doc,
   increment,
   onSnapshot,
   runTransaction,
+  setDoc,
   updateDoc,
 } from "@firebase/firestore";
 import type { Criterion, Decision, Option, Rating, User } from "../types/data";
@@ -63,17 +65,15 @@ export async function addCriterion(
 /**
  * Create a new decision.
  */
-export async function addDecision(
-  creator: User,
-  title: string
-): Promise<string> {
-  const doc = await addDoc(decisionCollection, {
+export function addDecision(creator: User, title: string): string {
+  const ref = doc(decisionCollection);
+  setDoc(ref, {
     collaborators: [],
     created: Date.now(),
     creator,
     title,
   });
-  return doc.id;
+  return ref.id;
 }
 
 /**

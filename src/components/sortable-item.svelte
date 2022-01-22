@@ -1,12 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
-
   export let data: any = undefined;
-
   let element: HTMLLIElement;
-  onMount(() => {
-    Reflect.set(element, "data", data);
-  });
+  onMount(() => Reflect.set(element, "data", data));
 </script>
 
 <li

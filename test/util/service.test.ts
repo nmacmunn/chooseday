@@ -17,7 +17,7 @@ describe("service util", () => {
     });
     describe("callbackHandler", () => {
       it("should send ERROR if context is invalid", () => {
-        Context().isDecisionContext.mockReturnValue(false);
+        Context().isDecisionLoadingContext.mockReturnValue(false);
         const context = {};
         const callbackHandler = runScript().decisionListener(context);
         const send = jest.fn();
@@ -28,7 +28,7 @@ describe("service util", () => {
         });
       });
       it("should subscribe to options", () => {
-        Context().isDecisionContext.mockReturnValue(true);
+        Context().isDecisionLoadingContext.mockReturnValue(true);
         const decision = new FakeDecision();
         const context = {
           decision,
@@ -42,7 +42,7 @@ describe("service util", () => {
         );
       });
       it("should send OPTIONSLOADED when options change", () => {
-        Context().isDecisionContext.mockReturnValue(true);
+        Context().isDecisionLoadingContext.mockReturnValue(true);
         const decision = new FakeDecision();
         const context = {
           decision,
@@ -56,7 +56,7 @@ describe("service util", () => {
         expect(send).toHaveBeenCalledWith({ type: "OPTIONSLOADED", options });
       });
       it("should subscribe to criteria", () => {
-        Context().isDecisionContext.mockReturnValue(true);
+        Context().isDecisionLoadingContext.mockReturnValue(true);
         const decision = new FakeDecision();
         const context = {
           decision,
@@ -70,7 +70,7 @@ describe("service util", () => {
         );
       });
       it("should send CRITERIALOADED when criteria change", () => {
-        Context().isDecisionContext.mockReturnValue(true);
+        Context().isDecisionLoadingContext.mockReturnValue(true);
         const decision = new FakeDecision();
         const context = {
           decision,
@@ -84,7 +84,7 @@ describe("service util", () => {
         expect(send).toHaveBeenCalledWith({ type: "CRITERIALOADED", criteria });
       });
       it("should subscribe to ratings", () => {
-        Context().isDecisionContext.mockReturnValue(true);
+        Context().isDecisionLoadingContext.mockReturnValue(true);
         const decision = new FakeDecision();
         const context = {
           decision,
@@ -98,7 +98,7 @@ describe("service util", () => {
         );
       });
       it("should send RATINGSLOADED when ratings change", () => {
-        Context().isDecisionContext.mockReturnValue(true);
+        Context().isDecisionLoadingContext.mockReturnValue(true);
         const decision = new FakeDecision();
         const context = {
           decision,
@@ -112,7 +112,7 @@ describe("service util", () => {
         expect(send).toHaveBeenCalledWith({ type: "RATINGSLOADED", ratings });
       });
       it("should return an unsubscribe function", () => {
-        Context().isDecisionContext.mockReturnValue(true);
+        Context().isDecisionLoadingContext.mockReturnValue(true);
         const decision = new FakeDecision();
         const context = {
           decision,
@@ -129,7 +129,7 @@ describe("service util", () => {
           Db().subscribeRatings.mockReturnValue(jest.fn());
         });
         it("should unsubscribe from options changes", () => {
-          Context().isDecisionContext.mockReturnValue(true);
+          Context().isDecisionLoadingContext.mockReturnValue(true);
           const decision = new FakeDecision();
           const context = {
             decision,
@@ -143,7 +143,7 @@ describe("service util", () => {
           ).toHaveBeenCalled();
         });
         it("should unsubscribe from criteria changes", () => {
-          Context().isDecisionContext.mockReturnValue(true);
+          Context().isDecisionLoadingContext.mockReturnValue(true);
           const decision = new FakeDecision();
           const context = {
             decision,
@@ -157,7 +157,7 @@ describe("service util", () => {
           ).toHaveBeenCalled();
         });
         it("should unsubscribe from ratings changes", () => {
-          Context().isDecisionContext.mockReturnValue(true);
+          Context().isDecisionLoadingContext.mockReturnValue(true);
           const decision = new FakeDecision();
           const context = {
             decision,
@@ -180,7 +180,7 @@ describe("service util", () => {
     });
     describe("callback handler", () => {
       it("should send ERROR if context is invalid", () => {
-        Context().isSignedinContext.mockReturnValue(false);
+        Context().isDecisionsLoadingContext.mockReturnValue(false);
         const context = {};
         const callbackHandler = runScript().decisionsListener(context);
         const send = jest.fn();
@@ -191,7 +191,7 @@ describe("service util", () => {
         });
       });
       it("should subscribe to creator decisions", () => {
-        Context().isSignedinContext.mockReturnValue(true);
+        Context().isDecisionsLoadingContext.mockReturnValue(true);
         const user = new FakeUser();
         const context = {
           user,
@@ -205,7 +205,7 @@ describe("service util", () => {
         );
       });
       it("should send CREATORDECISIONSLOADED when decisions change", () => {
-        Context().isSignedinContext.mockReturnValue(true);
+        Context().isDecisionsLoadingContext.mockReturnValue(true);
         const user = new FakeUser();
         const context = {
           user,
@@ -223,7 +223,7 @@ describe("service util", () => {
       });
       describe("user does not have an email", () => {
         it("should send COLLABORATORDECISIONSLOADED once", () => {
-          Context().isSignedinContext.mockReturnValue(true);
+          Context().isDecisionsLoadingContext.mockReturnValue(true);
           User().hasEmail.mockReturnValue(false);
           const user = new FakeUser();
           const context = {
@@ -238,7 +238,7 @@ describe("service util", () => {
           });
         });
         it("should return the creator decisions unsubscribe function", () => {
-          Context().isSignedinContext.mockReturnValue(true);
+          Context().isDecisionsLoadingContext.mockReturnValue(true);
           User().hasEmail.mockReturnValue(false);
           const user = new FakeUser();
           const context = {
@@ -253,7 +253,7 @@ describe("service util", () => {
       });
       describe("user has email", () => {
         it("should subscribe to collaborator decisions", () => {
-          Context().isSignedinContext.mockReturnValue(true);
+          Context().isDecisionsLoadingContext.mockReturnValue(true);
           User().hasEmail.mockReturnValue(true);
           const user = new FakeUser();
           const context = {
@@ -268,7 +268,7 @@ describe("service util", () => {
           );
         });
         it("should send COLLABORATORDECISIONSLOADED when decisions change", () => {
-          Context().isSignedinContext.mockReturnValue(true);
+          Context().isDecisionsLoadingContext.mockReturnValue(true);
           User().hasEmail.mockReturnValue(true);
           const user = new FakeUser();
           const context = {
@@ -287,7 +287,7 @@ describe("service util", () => {
           });
         });
         it("should return an unsubscribe function", () => {
-          Context().isSignedinContext.mockReturnValue(true);
+          Context().isDecisionsLoadingContext.mockReturnValue(true);
           User().hasEmail.mockReturnValue(true);
           const user = new FakeUser();
           const context = {
@@ -304,7 +304,7 @@ describe("service util", () => {
             Db().subscribeCollaboratorDecisions.mockReturnValue(jest.fn());
           });
           it("should unsubscribe from creator decision changes", () => {
-            Context().isSignedinContext.mockReturnValue(true);
+            Context().isDecisionsLoadingContext.mockReturnValue(true);
             User().hasEmail.mockReturnValue(true);
             const user = new FakeUser();
             const context = {
@@ -319,7 +319,7 @@ describe("service util", () => {
             ).toHaveBeenCalled();
           });
           it("should unsubscribe from collaborator decision changes", () => {
-            Context().isSignedinContext.mockReturnValue(true);
+            Context().isDecisionsLoadingContext.mockReturnValue(true);
             User().hasEmail.mockReturnValue(true);
             const user = new FakeUser();
             const context = {
@@ -337,10 +337,42 @@ describe("service util", () => {
       });
     });
   });
+  describe("redirectResultListener", () => {
+    it("should return a callback handler", () => {
+      const callbackHandler = runScript().redirectResultListener();
+      expect(callbackHandler).toEqual(expect.any(Function));
+    });
+    describe("callback handler", () => {
+      it("should invoke getRedirectResult", () => {
+        Auth().getRedirectResult.mockResolvedValue(undefined);
+        const callbackHandler = runScript().redirectResultListener();
+        const send = jest.fn();
+        callbackHandler(send);
+        expect(Auth().getRedirectResult).toHaveBeenCalled();
+      });
+      it("should send REDIRECTRESULT if getRedirectResult resolves", (done) => {
+        Auth().getRedirectResult.mockResolvedValue(undefined);
+        const callbackHandler = runScript().redirectResultListener();
+        callbackHandler((event) => {
+          expect(event).toEqual({ type: "REDIRECTRESULT" });
+          done();
+        });
+      });
+      it("should send ERROR if getRedirectResult rejects", (done) => {
+        const error = new Error();
+        Auth().getRedirectResult.mockRejectedValue(error);
+        const callbackHandler = runScript().redirectResultListener();
+        callbackHandler((event) => {
+          expect(event).toEqual({ type: "ERROR", error });
+          done();
+        });
+      });
+    });
+  });
   describe("userIdListener", () => {
     it("should return a callback handler", () => {
-      const { userIdListener } = runScript();
-      expect(userIdListener({})).toEqual(expect.any(Function));
+      const callbackHandler = runScript().userIdListener();
+      expect(callbackHandler).toEqual(expect.any(Function));
     });
     describe("callback handler", () => {
       it("should listen for auth changes", () => {

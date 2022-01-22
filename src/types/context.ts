@@ -1,82 +1,82 @@
 import type { Criterion, Decision, Option, Rating, User } from "./data";
 
+export type AppContext =
+  | CollaboratorsContext
+  | CriteriaContext
+  | DecisionLoadingContext
+  | DecisionsLoadedContext
+  | DecisionsLoadingContext
+  | ErrorContext
+  | OptionsContext
+  | PreAuthContext
+  | RatingsContext
+  | ResultsContext
+  | SignedOutContext
+  | SigningInContext;
+
 export interface BaseContext {
   criteria?: Criterion[];
   criterion?: Criterion;
   creatorDecisions?: Decision[];
   collaboratorDecisions?: Decision[];
   decision?: Decision;
+  decisionId?: string;
   error?: string;
   ratings?: Rating[];
   options?: Option[];
   user?: User;
 }
 
+export interface CollaboratorsContext extends DecisionLoadingContext {}
+
+export interface CriteriaContext extends OptionsContext {
+  options: [Option, Option, ...Option[]];
+}
+
+export interface CreatingContext extends SignedInContext {
+  creatorDecisions: Decision[];
+  decisionId: string;
+}
+
+export interface DecisionLoadedContext extends DecisionLoadingContext {
+  criteria: Criterion[];
+  options: Option[];
+  ratings: Rating[];
+}
+
+export interface DecisionLoadingContext extends SignedInContext {
+  decision: Decision;
+}
+
+export interface DecisionsLoadedContext extends DecisionsLoadingContext {
+  collaboratorDecisions: Decision[];
+  creatorDecisions: Decision[];
+}
+
+export interface DecisionsLoadingContext extends SignedInContext {}
+
 export interface ErrorContext extends BaseContext {
   error: string;
 }
 
-export interface LoadingContext extends BaseContext {}
+export interface OptionsContext extends DecisionLoadedContext {}
 
-export interface SignedinContext extends BaseContext {
+export interface PreAuthContext extends BaseContext {}
+
+export interface RatingsContext extends CriteriaContext {
+  criteria: [Criterion, Criterion, ...Criterion[]];
+  criterion: Criterion;
+  ratings: [Rating, Rating, Rating, Rating, ...Rating[]];
+}
+
+export interface ResultsContext extends RatingsContext {}
+
+export interface SignedInContext extends BaseContext {
   user: User;
 }
 
-export interface SignedoutContext extends BaseContext {
+export interface SignedOutContext extends BaseContext {
   user: undefined;
 }
 
-export interface DecisionsContext extends BaseContext {
-  user: User;
-}
-
-export interface DecisionContext extends BaseContext {
-  decision: Decision;
-  user: User;
-}
-
-export interface OptionsContext extends BaseContext {
-  decision: Decision;
-  user: User;
-}
-
-export interface CriteriaContext extends BaseContext {
-  decision: Decision;
-  options: [Option, Option, ...Option[]];
-  user: User;
-}
-
-export interface RatingsContext extends BaseContext {
-  criteria: [Criterion, Criterion, ...Criterion[]];
-  criterion: Criterion;
-  decision: Decision;
-  options: [Option, Option, ...Option[]];
-  ratings: [Rating, Rating, Rating, Rating, ...Rating[]];
-  user: User;
-}
-
-export interface CollaboratorsContext extends BaseContext {
-  decision: Decision;
-  user: User;
-}
-
-export interface ResultsContext extends BaseContext {
-  criteria: [Criterion, Criterion, ...Criterion[]];
-  decision: Decision;
-  options: [Option, Option, ...Option[]];
-  ratings: [Rating, Rating, Rating, Rating, ...Rating[]];
-  user: User;
-}
-
-export type AppContext =
-  | LoadingContext
-  | ErrorContext
-  | SignedinContext
-  | SignedoutContext
-  | DecisionsContext
-  | DecisionContext
-  | OptionsContext
-  | CriteriaContext
-  | RatingsContext
-  | CollaboratorsContext
-  | ResultsContext;
+export interface SigningInContext extends BaseContext {}

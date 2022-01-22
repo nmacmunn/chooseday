@@ -7,5 +7,6 @@ export const increment = jest.fn(() => ({}));
 export const onSnapshot = jest.fn();
 export const query = jest.fn(() => ({}));
 export const runTransaction = jest.fn(() => ({}));
+export const setDoc = jest.fn(() => {});
 export const updateDoc = jest.fn(() => ({}));
 export const where = jest.fn(() => ({}));

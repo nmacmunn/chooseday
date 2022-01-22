@@ -1,81 +1,48 @@
-import {
-  FakeCriterion,
-  FakeRating,
-  FakeRatingsContext,
-  FakeUser,
-} from "../helpers/fake";
-import _ from "lodash";
+import { FakeCriterion, FakeUser } from "../helpers/fake";
+import { MachineHarness } from "../helpers/machine";
 
-jest.unmock("../helpers/fake");
-jest.unmock("lodash");
-jest.unmock("../../src/util/context");
-jest.unmock("../../src/util/results");
+jest.disableAutomock();
 
 const runScript = () => jest.requireActual("../../src/util/guard");
 
 describe("guard util", () => {
   describe("doneRatingCurrent", () => {
     it("should return false if context is not RatingsContext", () => {
-      const result = runScript().doneRatingCurrent({});
+      const harness = new MachineHarness();
+      harness.enter("criteria");
+      const result = runScript().doneRatingCurrent(harness.state.context);
       expect(result).toBe(false);
     });
     it("should return false if all ratings have the same weight", () => {
-      const context = new FakeRatingsContext();
-      const weight = 1;
-      context.ratings.length = 0;
-      for (const { id: optionId } of context.options) {
-        for (const { id: criterionId } of context.criteria) {
-          context.ratings.push(
-            new FakeRating({ criterionId, optionId, weight })
-          );
-        }
-      }
-      const result = runScript().doneRatingCurrent(context);
+      const harness = new MachineHarness();
+      harness.enter("ratings");
+      const result = runScript().doneRatingCurrent(harness.state.context);
       expect(result).toBe(false);
     });
     it("should return true if ratings have different weights", () => {
-      const context = new FakeRatingsContext();
-      const result = runScript().doneRatingCurrent(context);
+      const harness = new MachineHarness();
+      harness.enter("collaborators");
+      const result = runScript().doneRatingCurrent(harness.state.context);
       expect(result).toBe(true);
     });
   });
   describe("doneRating", () => {
     it("should return false if context is not RatingsContext", () => {
-      const result = runScript().doneRating({});
+      const harness = new MachineHarness();
+      harness.enter("criteria");
+      const result = runScript().doneRatingCurrent(harness.state.context);
       expect(result).toBe(false);
     });
-    it("should return false if users ratings have the same weight", () => {
-      const context = new FakeRatingsContext();
-      const weight = 1;
-      context.ratings.length = 0;
-      for (const { id: optionId } of context.options) {
-        for (const { id: criterionId } of context.criteria) {
-          context.ratings.push(
-            new FakeRating({ criterionId, optionId, weight })
-          );
-        }
-      }
-      const result = runScript().doneRating(context);
+    it("should return false if user's ratings have the same weight", () => {
+      const harness = new MachineHarness();
+      harness.enter("ratings");
+      const result = runScript().doneRatingCurrent(harness.state.context);
       expect(result).toBe(false);
     });
     it("should return true if user's ratings have different weights", () => {
-      const context = new FakeRatingsContext();
-      // add another user's ratings with ties
-      const user = new FakeUser({ id: "other" });
-      const criteria = [
-        new FakeCriterion({ id: "other1", user }),
-        new FakeCriterion({ id: "other2", user }),
-      ];
-      context.criteria.push(...criteria);
-      const weight = 1;
-      for (const { id: optionId } of context.options) {
-        for (const { id: criterionId } of criteria) {
-          context.ratings.push(
-            new FakeRating({ criterionId, optionId, user, weight })
-          );
-        }
-      }
-      const result = runScript().doneRating(context);
+      const harness = new MachineHarness();
+      harness.enter("collaborators");
+      const result = runScript().doneRatingCurrent(harness.state.context);
       expect(result).toBe(true);
     });
   });

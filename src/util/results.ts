@@ -1,9 +1,16 @@
-import type { Criterion, Rating, User } from "../types/data";
+import type { Criterion, Decision, Option, Rating, User } from "../types/data";
 import _ from "lodash";
+import { getNames, getPossessive } from "./name";
+import type { ResultsContext } from "../types/context";
 
 type CriterionId = string & {};
 type OptionId = string & {};
 type UserId = string & {};
+
+type Ranked = {
+  rank: number;
+  options: Option[];
+};
 
 type ByOption = Record<OptionId, number>;
 
@@ -11,8 +18,8 @@ type ByCriterion = Record<
   CriterionId,
   {
     byOption: ByOption;
-    sorted: string[];
     criterion: Criterion;
+    sorted: Ranked[];
   }
 >;
 
@@ -21,7 +28,8 @@ type ByUser = Record<
   {
     byCriterion: ByCriterion;
     byOption: ByOption;
-    sorted: string[];
+    contribution: ByOption;
+    sorted: Ranked[];
     user: User;
   }
 >;
@@ -30,6 +38,13 @@ export interface Processed {
   byOption: ByOption;
   // byCriterion: ByCriterion;
   byUser: ByUser;
+  sorted: Ranked[];
+}
+
+interface UserScores {
+  byCriterion: ByCriterion;
+  byOption: ByOption;
+  sorted: Ranked[];
 }
 
 /**
@@ -67,22 +82,31 @@ function getRatingsScores(
     .value();
 }
 
-interface UserScores {
-  byCriterion: ByCriterion;
-  byOption: ByOption;
-  sorted: string[];
+function sort(options: Option[], byOption: ByOption): Ranked[] {
+  const sorted = [...options].sort((a, b) => byOption[b.id] - byOption[a.id]);
+  let ranked = [];
+  let lastScore = undefined;
+  for (let i = 0; i < sorted.length; i++) {
+    const option = sorted[i];
+    const score = byOption[option.id];
+    if (score !== lastScore) {
+      ranked.push({
+        rank: i + 1,
+        options: [option],
+      });
+      lastScore = score;
+    } else {
+      ranked[ranked.length - 1].options.push(option);
+    }
+  }
+  return ranked;
 }
 
-function sort(byOption: ByOption): string[] {
-  return _.chain(byOption)
-    .entries()
-    .sortBy(1)
-    .reverse()
-    .map(([optionId]) => optionId)
-    .value();
-}
-
-function getUserScores(criteria: Criterion[], ratings: Rating[]): UserScores {
+function getUserScores(
+  criteria: Criterion[],
+  options: Option[],
+  ratings: Rating[]
+): UserScores {
   const criteriaScores = getCriteriaScores(criteria);
   const ratingsScores = getRatingsScores(ratings);
 
@@ -97,7 +121,7 @@ function getUserScores(criteria: Criterion[], ratings: Rating[]): UserScores {
       return {
         byOption,
         criterion,
-        sorted: sort(byOption),
+        sorted: sort(options, byOption),
       };
     })
     .value();
@@ -114,14 +138,37 @@ function getUserScores(criteria: Criterion[], ratings: Rating[]): UserScores {
   return {
     byCriterion,
     byOption,
-    sorted: sort(byOption),
+    sorted: sort(options, byOption),
   };
 }
 
-export function processResults(
-  criteria: Criterion[],
-  ratings: Rating[]
-): Processed {
+export function getOptionDescription(
+  option: Option,
+  byUser: ByUser,
+  currentUser: User,
+  decision: Decision
+) {
+  const topChoiceOf = _.chain(byUser)
+    .values()
+    .filter(({ sorted }) => _.includes(sorted[0].options, option))
+    .map(({ user }) => user)
+    .value();
+  if (topChoiceOf.length === 0) {
+    return "";
+  }
+  if (topChoiceOf.length === 1) {
+    return `${getPossessive(
+      topChoiceOf[0],
+      currentUser,
+      decision,
+      true
+    )} top choice`;
+  }
+  return `Top choice of ${getNames(topChoiceOf, currentUser, decision)}`;
+}
+
+export function processResults(context: ResultsContext): Processed {
+  const { criteria, options, ratings } = context;
   const criteriaByUser = _.groupBy(criteria, "user.id");
   const ratingsByUser = _.groupBy(ratings, "user.id");
   const userCount = _.size(criteriaByUser);
@@ -129,8 +176,11 @@ export function processResults(
   const byUser = _.mapValues(criteriaByUser, (criteria, userId) => {
     const ratings = ratingsByUser[userId];
     const { user } = criteria[0];
+    const userScores = getUserScores(criteria, options, ratings);
+    const contribution = _.mapValues(userScores.byOption, (v) => v / userCount);
     return {
-      ...getUserScores(criteria, ratings),
+      ...userScores,
+      contribution,
       user,
     };
   });
@@ -146,5 +196,6 @@ export function processResults(
   return {
     byOption,
     byUser,
+    sorted: sort(options, byOption),
   };
 }

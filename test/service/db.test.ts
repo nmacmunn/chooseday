@@ -115,25 +115,29 @@ describe("db service", () => {
     });
   });
   describe("addDecision", () => {
-    it("should add a document to decisionCollection", async () => {
+    it("should get a document reference", () => {
+      runScript().addDecision(new FakeUser(), "decision title");
+      expect(Firestore().doc).toHaveBeenCalledWith(
+        Collection().decisionCollection
+      );
+    });
+    it("should add a document to decisionCollection", () => {
       jest.spyOn(Date, "now").mockReturnValue(1234567890);
-      await runScript().addDecision({ id: "userId" }, "decision");
-      expect(Firestore().addDoc).toHaveBeenCalledWith(
-        Collection().decisionCollection,
+      Firestore().doc.mockReturnValue({ id: "decisionId" });
+      runScript().addDecision(new FakeUser(), "decision title");
+      expect(Firestore().setDoc).toHaveBeenCalledWith(
+        { id: "decisionId" },
         {
           collaborators: [],
           created: 1234567890,
           creator: { id: "userId" },
-          title: "decision",
+          title: "decision title",
         }
       );
     });
-    it("should return the document id", async () => {
-      Firestore().addDoc.mockReturnValue({ id: "decisionId" });
-      const result = await runScript().addDecision(
-        { id: "userId" },
-        "decision"
-      );
+    it("should return the document id", () => {
+      Firestore().doc.mockReturnValue({ id: "decisionId" });
+      const result = runScript().addDecision(new FakeUser(), "decision title");
       expect(result).toEqual("decisionId");
     });
   });

@@ -1,128 +1,101 @@
 <script lang="ts">
-  import Chart from "chart.js/auto";
-  import { interpolateCool } from "d3-scale-chromatic";
   import _ from "lodash";
-  import type { Option } from "../types/data";
   import type { ResultsState } from "../types/state";
+  import { getCool } from "../util/color";
   import { getName } from "../util/name";
   import type { Processed } from "../util/results";
-  import { beforeUpdate, onMount } from "svelte";
+  import { getOptionDescription } from "../util/results";
+  import BarChart from "./bar-chart.svelte";
 
   export let state: ResultsState;
   export let processed: Processed;
 
   const { options } = state.context;
-  const { byOption, byUser } = processed;
-  const sorted = [...options].sort((a, b) => byOption[b.id] - byOption[a.id]);
-  const userCount = _.size(processed.byUser);
+  const { byOption, byUser, sorted } = processed;
+
+  const chartLabels = options.map((option) => option.title);
+  const chartOptions = {
+    aspectRatio: 1,
+    responsive: true,
+    scales: {
+      x: {
+        stacked: true,
+        grid: {
+          display: false,
+        },
+      },
+      y: {
+        stacked: true,
+        max: 1,
+        ticks: {
+          display: false,
+        },
+      },
+    },
+  };
 
   $: datasets = Object.entries(processed.byUser).map(
     ([_, userScores], i, { length }) => {
+      const backgroundColor = getCool(i, length);
+      const data = options.map(({ id }) => userScores.contribution[id]);
       const label = getName(
         userScores.user,
         state.context.user,
         state.context.decision
       );
-      return {
-        backgroundColor: interpolateCool((i + 1) / (length + 1)),
-        data: options.map(({ id }) => userScores.byOption[id] / userCount),
-        label,
-      };
+      return { backgroundColor, data, label };
     }
   );
-
-  function description(option: Option) {
-    const topChoice = _.chain(byUser)
-      .values()
-      .filter(({ sorted }) => sorted[0] === option.id)
-      .map(({ user }) => user)
-      .value();
-
-    if (topChoice.length) {
-      const names = topChoice
-        .map((user) =>
-          getName(user, state.context.user, state.context.decision)
-        )
-        .join(", ");
-      return `Top choice of ${names}`;
-    }
-    return "";
-  }
-
-  let chartEl: HTMLCanvasElement;
-
-  onMount(() => {
-    new Chart(chartEl, {
-      type: "bar",
-      data: {
-        datasets,
-        labels: _.map(options, "title"),
-      },
-      options: {
-        responsive: true,
-        scales: {
-          x: {
-            stacked: true,
-            grid: {
-              display: false,
-            },
-          },
-          y: {
-            stacked: true,
-            max: 1,
-            ticks: {
-              display: false,
-            },
-          },
-        },
-      },
-    });
-  });
-
-  beforeUpdate(() => {
-    const chart = Chart.getChart(chartEl);
-    if (!chart) {
-      return;
-    }
-    chart.data.datasets = datasets;
-    chart.update();
-  });
 </script>
 
 <div class="uk-grid uk-grid-small" uk-grid>
   <div class="uk-width-1-2@m">
     <ul class="uk-grid-small" uk-grid>
-      {#each sorted as option, i (option.id)}
-        <li
-          class:uk-width-1-1:uk-text-large={i === 0}
-          class:uk-width-1-2@s={i !== 0}
-        >
-          <div
-            class="uk-card uk-card-default uk-card-small uk-card-body uk-height-small"
+      {#each sorted as { options, rank }}
+        {#each options as option (option.id)}
+          <li
+            class:uk-width-1-1:uk-text-large={rank === 1}
+            class:uk-width-1-2@s={rank !== 1}
           >
-            <div class:uk-text-large={i === 0} class="uk-flex uk-flex-top">
-              <span class="uk-margin-small-right">#{i + 1}</span>
-              <span class="uk-margin-small-right uk-width-expand"
-                >{option.title}</span
-              >
-              <span
-                class="badge"
-                class:uk-text-success={byOption[option.id] > 0.7}
-                class:uk-text-danger={byOption[option.id] < 0.3}
-                >{Math.round(byOption[option.id] * 100)}</span
-              >
+            <div
+              class="uk-card uk-card-default uk-card-small uk-card-body uk-height-small"
+            >
+              <div class:uk-text-large={rank === 1} class="uk-flex uk-flex-top">
+                <span class="uk-margin-small-right">#{rank}</span>
+                <span class="uk-margin-small-right uk-width-expand"
+                  >{option.title}</span
+                >
+                <span
+                  class="badge"
+                  class:uk-text-success={byOption[option.id] > 0.7}
+                  class:uk-text-danger={byOption[option.id] < 0.3}
+                  >{Math.round(byOption[option.id] * 100)}</span
+                >
+              </div>
+              <hr />
+              <p class="uk-text-small">
+                {getOptionDescription(
+                  option,
+                  byUser,
+                  state.context.user,
+                  state.context.decision
+                )}
+              </p>
             </div>
-            <hr />
-            <p class="uk-text-small">{description(option)}</p>
-          </div>
-        </li>
+          </li>
+        {/each}
       {/each}
     </ul>
   </div>
 
   <div class="uk-width-1-2@m">
     <div class="uk-card uk-card-default uk-card-small uk-card-body">
-      <canvas bind:this={chartEl} />
+      <BarChart
+        {datasets}
+        label="Overall results chart"
+        labels={chartLabels}
+        options={chartOptions}
+      />
     </div>
   </div>
 </div>

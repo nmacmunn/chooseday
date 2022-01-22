@@ -1,6 +1,5 @@
 import { readable } from "svelte/store";
 import { createMachine, interpret } from "xstate";
-import { getRedirectResult } from "./service/auth";
 import type { BaseContext } from "./types/context";
 import type { AppEvent } from "./types/events";
 import type { AppState } from "./types/state";
@@ -9,89 +8,117 @@ import * as guards from "./util/guard";
 import * as services from "./util/service";
 
 const machine = createMachine<BaseContext, AppEvent, AppState>({
-  initial: "initial",
+  always: {
+    cond: guards.enterError,
+    target: "error",
+  },
   context: {},
+  initial: "preAuth",
   on: {
     ERROR: {
       actions: actions.setError,
     },
   },
-  always: {
-    target: "error",
-    cond: guards.enterError,
-  },
   states: {
-    error: {},
-    initial: {
-      invoke: {
-        src: getRedirectResult,
-        onDone: "root",
-        onError: {
-          target: "root",
-          actions: actions.authError,
-        },
-      },
-    },
-    root: {
-      initial: "loading",
+    auth: {
+      initial: "signingIn",
       invoke: {
         src: services.userIdListener,
       },
       states: {
-        loading: {},
         signedIn: {
           initial: "decisions",
           states: {
             decisions: {
+              initial: "loading",
               invoke: {
                 src: services.decisionsListener,
               },
+              on: {
+                COLLABORATORDECISIONSLOADED: {
+                  actions: actions.setCollaboratorDecisions,
+                },
+                CREATING: {
+                  actions: actions.setDecisionId,
+                  target: ".creating",
+                },
+                CREATORDECISIONSLOADED: {
+                  actions: actions.setCreatorDecisions,
+                },
+                DECISION: {
+                  actions: actions.setDecision,
+                  target: "decision",
+                },
+              },
+              states: {
+                creating: {},
+                loaded: {},
+                loading: {
+                  always: {
+                    cond: guards.decisionsLoaded,
+                    target: "loaded",
+                  },
+                },
+              },
             },
             decision: {
-              initial: "options",
+              initial: "loading",
               invoke: {
                 src: services.decisionListener,
               },
               on: {
-                OPTIONS: {
-                  target: ".options",
+                CRITERIALOADED: {
+                  actions: actions.setCriteria,
                 },
                 OPTIONSLOADED: {
                   actions: actions.setOptions,
                 },
-                CRITERIA: {
-                  target: ".criteria",
-                  cond: guards.enoughOptions,
-                },
-                CRITERIALOADED: {
-                  actions: actions.setCriteria,
-                },
-                RATINGS: {
-                  target: ".ratings",
-                  cond: guards.enoughCriteria,
-                },
-                CRITERION: {
-                  cond: guards.doneRatingCurrent,
-                  actions: actions.setCriterion,
-                },
                 RATINGSLOADED: {
                   actions: actions.setRatings,
                 },
-                COLLABORATORS: {
-                  target: ".collaborators",
-                  cond: guards.doneRating,
-                },
-                RESULTS: {
-                  target: ".results",
-                  cond: guards.doneRating,
-                },
               },
               states: {
-                options: {},
-                criteria: {},
-                ratings: {},
-                collaborators: {},
-                results: {},
+                loaded: {
+                  initial: "options",
+                  on: {
+                    COLLABORATORS: {
+                      cond: guards.doneRating,
+                      target: ".collaborators",
+                    },
+                    CRITERIA: {
+                      cond: guards.enoughOptions,
+                      target: ".criteria",
+                    },
+                    CRITERION: {
+                      cond: guards.doneRatingCurrent,
+                      actions: actions.setCriterion,
+                    },
+                    OPTIONS: {
+                      target: ".options",
+                    },
+                    RATINGS: {
+                      cond: guards.enoughCriteria,
+                      target: ".ratings",
+                    },
+                    RESULTS: {
+                      cond: guards.doneRating,
+                      target: ".results",
+                    },
+                  },
+                  states: {
+                    collaborators: {},
+                    criteria: {},
+                    options: {},
+                    ratings: {},
+                    results: {},
+                  },
+                },
+                loading: {
+                  always: {
+                    cond: guards.decisionLoaded,
+                    target: "loaded",
+                  },
+                },
               },
             },
           },
@@ -100,19 +127,10 @@ const machine = createMachine<BaseContext, AppEvent, AppState>({
               target: ".decisions",
               actions: actions.clearDecision,
             },
-            DECISION: {
-              target: ".decision",
-              actions: actions.setDecision,
-            },
-            COLLABORATORDECISIONSLOADED: {
-              actions: actions.setCollaboratorDecisions,
-            },
-            CREATORDECISIONSLOADED: {
-              actions: actions.setCreatorDecisions,
-            },
           },
         },
         signedOut: {},
+        signingIn: {},
       },
       on: {
         SIGNIN: {
@@ -125,6 +143,15 @@ const machine = createMachine<BaseContext, AppEvent, AppState>({
         },
       },
     },
+    error: {},
+    preAuth: {
+      invoke: {
+        src: services.redirectResultListener,
+      },
+      on: {
+        REDIRECTRESULT: "auth",
+      },
+    },
   },
 });
 
@@ -135,5 +162,16 @@ export const state = readable(interpreter.state, (set) => {
     set(state);
   });
 });
+
+export const states = {
+  preAuth: "preAuth",
+  signingIn: { auth: "signingIn" },
+  decisionLoading: {
+    auth: { signedIn: { decision: "loading" } },
+  },
+  decisionsLoading: {
+    auth: { signedIn: { decisions: "loading" } },
+  },
+};
 
 export const { send } = interpreter;

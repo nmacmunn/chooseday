@@ -1,35 +1,30 @@
 <script lang="ts">
-  import Chart from "chart.js/auto";
-  import { interpolateWarm } from "d3-scale-chromatic";
   import _ from "lodash";
-  import { beforeUpdate, onMount } from "svelte";
+  import { getWarm } from "../util/color";
   import type { Option } from "../types/data";
   import type { ResultsState } from "../types/state";
   import type { Processed } from "../util/results";
+  import BarChart from "./bar-chart.svelte";
 
   export let state: ResultsState;
   export let processed: Processed;
 
-  const { criteria, options, user } = state.context;
-  const { byOption, byCriterion } = processed.byUser[user.id];
-  const sorted = [...options].sort((a, b) => byOption[b.id] - byOption[a.id]);
+  const { options, user } = state.context;
+  const { byCriterion, sorted } = processed.byUser[user.id];
 
-  $: datasets = Object.entries(processed.byUser[user.id].byCriterion).map(
-    ([criterionId, criterionScores], i, { length }) => {
-      return {
-        backgroundColor: interpolateWarm((i + 1) / (length + 1)),
-        data: options.map(({ id }) => criterionScores.byOption[id]),
-        label: criteria.find(({ id }) => id === criterionId)?.title,
-      };
+  $: datasets = Object.values(byCriterion).map(
+    (criterionScores, i, { length }) => {
+      const backgroundColor = getWarm(i, length);
+      const data = options.map(({ id }) => criterionScores.byOption[id]);
+      const label = criterionScores.criterion.title;
+      return { backgroundColor, data, label };
     }
   );
-
-  let chartEl: HTMLCanvasElement;
 
   function description(option: Option) {
     const bestFor = _.chain(byCriterion)
       .values()
-      .filter(({ sorted }) => sorted[0] === option.id)
+      .filter(({ sorted }) => _.includes(sorted[0].options, option))
       .map("criterion.title")
       .value();
 
@@ -39,63 +34,54 @@
     return "";
   }
 
-  onMount(() => {
-    new Chart(chartEl, {
-      type: "bar",
-      data: {
-        datasets,
-        labels: _.map(options, "title"),
-      },
-      options: {
-        responsive: true,
-        scales: {
-          x: {
-            stacked: true,
-            grid: {
-              display: false,
-            },
-          },
-          y: {
-            stacked: true,
-            max: 1,
-            ticks: {
-              display: false,
-            },
-          },
+  const chartLabels = _.map(options, "title");
+  const chartOptions = {
+    aspectRatio: 1,
+    responsive: true,
+    scales: {
+      x: {
+        stacked: true,
+        grid: {
+          display: false,
         },
       },
-    });
-  });
-
-  beforeUpdate(() => {
-    const chart = Chart.getChart(chartEl);
-    if (!chart) {
-      return;
-    }
-    chart.data.datasets = datasets;
-    chart.update();
-  });
+      y: {
+        stacked: true,
+        max: 1,
+        ticks: {
+          display: false,
+        },
+      },
+    },
+  };
 </script>
 
 <div class="uk-grid uk-grid-small" uk-grid>
   <div class="uk-width-1-2@m">
     <div class="uk-card uk-card-default uk-card-small uk-card-body">
-      <canvas bind:this={chartEl} />
+      <BarChart
+        {datasets}
+        label="User results chart"
+        labels={chartLabels}
+        options={chartOptions}
+      />
     </div>
   </div>
   <div class="uk-width-1-2@m">
     <ul class="uk-grid-small" uk-grid uk-height-match="target: > li > .uk-card">
-      {#each sorted as option, i (option.id)}
-        <li class="uk-width-1-2@s">
-          <div class="uk-card uk-card-default uk-card-small uk-card-body">
-            <div class="uk-flex uk-flex-top">
-              <span class="uk-margin-small-right">#{i + 1}</span>
-              <span>{option.title}</span>
+      {#each sorted as { options, rank }}
+        {#each options as option (option.id)}
+          <li class="uk-width-1-2@s">
+            <div class="uk-card uk-card-default uk-card-small uk-card-body">
+              <div class="uk-flex uk-flex-top">
+                <span class="uk-margin-small-right">#{rank}</span>
+                <span>{option.title}</span>
+              </div>
+              <hr />
+              <p class="uk-text-small">{description(option)}</p>
             </div>
-            <hr />
-            <p class="uk-text-small">{description(option)}</p>
-          </div>
-        </li>
+          </li>
+        {/each}
       {/each}
     </ul>
   </div>
