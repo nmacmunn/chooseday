@@ -15,3 +15,14 @@
     </div>
   </div>
 </div>
+<div
+  class="uk-margin-large-top uk-padding-small uk-background-muted uk-text-small uk-text-muted uk-text-center"
+>
+  made by <a href="https://neil.macmunn.com" target="_blank">Neil MacMunn</a>
+</div>
+
+<style>
+  .uk-container {
+    min-height: calc(100vh - 121px);
+  }
+</style>
