@@ -1,6 +1,8 @@
 const App = () => jest.requireMock("../src/components/app");
 const Chart = () => jest.requireMock("chart.js/auto").default;
+const Env = () => jest.requireMock("../src/util/env");
 const Icons = () => jest.requireMock("uikit/dist/js/uikit-icons");
+const Sentry = () => jest.requireMock("@sentry/browser");
 const UIKit = () => jest.requireMock("uikit").default;
 
 jest.unmock("svelte/internal");
@@ -10,6 +12,12 @@ const runScript = () => jest.requireActual("../src/main");
 
 describe("main", () => {
   beforeEach(() => jest.resetModules());
+  it("should initialize sentry", () => {
+    Env().getEnv.mockReturnValue({ VITE_SENTRY_DSN: "sentry" });
+    document.body.innerHTML = `<div id="app" />`;
+    runScript();
+    expect(Sentry().init).toHaveBeenCalledWith({ dsn: "sentry" });
+  });
   it("should load the uikit icons plugin", () => {
     document.body.innerHTML = `<div id="app" />`;
     runScript();
