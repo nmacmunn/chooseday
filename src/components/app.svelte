@@ -23,6 +23,11 @@
 
 <style>
   .uk-container {
-    min-height: calc(100vh - 121px);
+    min-height: calc(100vh - 91px);
+  }
+  @media (min-width: 1200px) {
+    .uk-container {
+      min-height: calc(100vh - 121px);
+    }
   }
 </style>
