@@ -4,7 +4,7 @@ Indecisionator is an application that helps you make better decisions with great
 
 ## Live Demo
 
-Try the current version [here](indecisionator.web.app). Please be aware that this is for demonstration purposes only and your data may be deleted at any time.
+Try the current version [here](https://indecisionator.web.app). Please be aware that this is for demonstration purposes only and your data may be deleted at any time.
 
 ## Getting Started
 
