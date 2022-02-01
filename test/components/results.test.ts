@@ -1,6 +1,5 @@
-import { fireEvent } from "@testing-library/dom";
 import "@testing-library/jest-dom";
-import { act, render, RenderResult } from "@testing-library/svelte";
+import { act, fireEvent, render, RenderResult } from "@testing-library/svelte";
 import { MachineHarness } from "../helpers/machine";
 
 jest.disableAutomock();
@@ -17,8 +16,20 @@ class Harness extends MachineHarness {
   get collaboratorsButton() {
     return this.result.getByText("Collaborators");
   }
+  get collaboratorTab() {
+    return this.result.getByText("pal@example.com");
+  }
+  get youTab() {
+    return this.result.getByText("you");
+  }
   clickCollaboratorsButton() {
     return fireEvent.click(this.collaboratorsButton);
+  }
+  clickCollaboratorTab() {
+    return fireEvent.click(this.collaboratorTab);
+  }
+  clickYouTab() {
+    return fireEvent.click(this.youTab);
   }
   async refresh() {
     const state = this.state;
@@ -53,7 +64,23 @@ describe("results component", () => {
   it("should render a tab for each user", () => {
     harness.enter("results");
     harness.render();
-    expect(harness.result.getByText("yours")).toBeVisible();
+    expect(harness.youTab).toBeVisible();
+    expect(harness.collaboratorTab).toBeVisible();
+  });
+  it("should render user results when you tab is clicked", async () => {
+    harness.enter("results");
+    harness.render();
+    await harness.clickYouTab();
+    expect(harness.result.getByText("Best for First Criterion")).toBeVisible();
+    expect(harness.result.getByText("Best for Second Criterion")).toBeVisible();
+  });
+  it("should render collaborat results when collaborator tab is clicked", async () => {
+    harness.enter("results");
+    harness.render();
+    await harness.clickCollaboratorTab();
+    expect(
+      harness.result.getByText("Best for Third Criterion, Fourth Criterion")
+    ).toBeVisible();
   });
   it("should render the overall results chart", () => {
     harness.enter("results");

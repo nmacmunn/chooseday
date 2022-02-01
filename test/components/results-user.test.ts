@@ -1,8 +1,8 @@
 import "@testing-library/jest-dom";
 import { act, render, RenderResult } from "@testing-library/svelte";
 import { ResultsContext } from "../../src/types/context";
-import type { Processed } from "../../src/util/results";
-import { processResults } from "../../src/util/results";
+import type { Result } from "../../src/model/result";
+import { getResult } from "../../src/util/result";
 import { MachineHarness } from "../helpers/machine";
 
 jest.disableAutomock();
@@ -11,21 +11,16 @@ jest.mock("chart.js/auto");
 const ResultsUser = () => require("../../src/components/results-user");
 
 class Harness extends MachineHarness {
-  processed: Processed;
+  processed: Result;
   result: RenderResult;
   render() {
     const state = this.state;
-    const processed = (this.processed = processResults(
-      state.context as ResultsContext
-    ));
-    this.result = render(ResultsUser(), { processed, state });
+    const user = state.context.user;
+    this.result = render(ResultsUser(), { state, user });
   }
   async refresh() {
     const state = this.state;
-    const processed = (this.processed = processResults(
-      state.context as ResultsContext
-    ));
-    this.result.component.$set({ processed, state });
+    this.result.component.$set({ state });
     await act();
   }
   get barChart() {
@@ -51,7 +46,7 @@ describe("results user component", () => {
     expect(harness.firstOptionTitle).toBeVisible();
     expect(harness.secondOptionTitle).toBeVisible();
   });
-  it("should indicate your top choice be each criteria", () => {
+  it("should indicate your top choice by each criteria", () => {
     harness.enter("results");
     harness.render();
     expect(harness.result.getByText("Best for First Criterion")).toBeVisible();

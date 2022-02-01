@@ -1,4 +1,10 @@
-import { FakeCriterion, FakeUser } from "../helpers/fake";
+import { AppContext, CriteriaContext } from "../../src/types/context";
+import {
+  FakeCriterion,
+  FakeDecision,
+  FakeOption,
+  FakeUser,
+} from "../helpers/fake";
 import { MachineHarness } from "../helpers/machine";
 
 jest.disableAutomock();
@@ -30,40 +36,53 @@ describe("guard util", () => {
     it("should return false if context is not RatingsContext", () => {
       const harness = new MachineHarness();
       harness.enter("criteria");
-      const result = runScript().doneRatingCurrent(harness.state.context);
+      const result = runScript().doneRating(harness.state.context);
       expect(result).toBe(false);
     });
     it("should return false if user's ratings have the same weight", () => {
       const harness = new MachineHarness();
       harness.enter("ratings");
-      const result = runScript().doneRatingCurrent(harness.state.context);
+      const result = runScript().doneRating(harness.state.context);
       expect(result).toBe(false);
     });
     it("should return true if user's ratings have different weights", () => {
       const harness = new MachineHarness();
       harness.enter("collaborators");
-      const result = runScript().doneRatingCurrent(harness.state.context);
+      const result = runScript().doneRating(harness.state.context);
       expect(result).toBe(true);
     });
   });
   describe("enoughCriteria", () => {
+    let context: AppContext;
+    beforeEach(() => {
+      const criteria = [new FakeCriterion(), new FakeCriterion()];
+      context = {
+        criteria,
+        decision: new FakeDecision(),
+        options: [new FakeOption(), new FakeOption()],
+        ratings: [],
+        user: new FakeUser(),
+        userCriteria: criteria,
+        userRatings: [],
+      };
+    });
     it("should return false if user is undefined", () => {
-      const result = runScript().enoughCriteria({});
+      context.user = undefined;
+      const result = runScript().enoughCriteria(context);
       expect(result).toBe(false);
     });
-    it("should return false if criteria is undefined", () => {
-      const result = runScript().enoughCriteria({ user: {} });
+    it("should return false if userCriteria is undefined", () => {
+      context.userCriteria = undefined;
+      const result = runScript().enoughCriteria(context);
       expect(result).toBe(false);
     });
     it("should return false if there are less than two criteria belonging to the user", () => {
-      const result = runScript().enoughCriteria({ user: {}, criteria: [] });
+      context.userCriteria.length = 1;
+      const result = runScript().enoughCriteria(context);
       expect(result).toBe(false);
     });
     it("should return true if there are two criteria belonging to the user", () => {
-      const result = runScript().enoughCriteria({
-        user: new FakeUser(),
-        criteria: [new FakeCriterion(), new FakeCriterion()],
-      });
+      const result = runScript().enoughCriteria(context);
       expect(result).toBe(true);
     });
   });

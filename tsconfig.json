@@ -6,6 +6,7 @@
     "module": "esnext",
     "resolveJsonModule": true,
     "baseUrl": ".",
+    "noUncheckedIndexedAccess": true,
     /**
      * Typecheck JS in `.svelte` and `.js` files by default.
      * Disable checkJs if you'd like to use dynamic types in JS.
@@ -16,14 +17,7 @@
     "checkJs": true,
     // added by Neil
     "strict": true,
-    "lib": [
-      "DOM"
-    ]
+    "lib": ["DOM"]
   },
-  "include": [
-    "src/**/*.d.ts",
-    "src/**/*.ts",
-    "src/**/*.js",
-    "src/**/*.svelte"
-  ]
+  "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"]
 }

@@ -5,7 +5,6 @@ import type {
   Rating,
   User,
 } from "../../src/types/data";
-import type { RatingsContext } from "../../src/types/context";
 
 export interface FakeCriterion extends Criterion {}
 export class FakeCriterion {
@@ -82,51 +81,6 @@ export class FakeUser {
       this,
       {
         id: "userId",
-      },
-      data
-    );
-  }
-}
-
-export interface FakeRatingsContext extends RatingsContext {}
-export class FakeRatingsContext implements RatingsContext {
-  constructor(data: Partial<RatingsContext> = {}) {
-    Object.assign(
-      this,
-      {
-        criteria: [
-          new FakeCriterion({ id: "criterion1" }),
-          new FakeCriterion({ id: "criterion2" }),
-        ],
-        criterion: new FakeCriterion({ id: "criterion1" }),
-        decision: new FakeDecision(),
-        options: [
-          new FakeOption({ id: "option1" }),
-          new FakeOption({ id: "option2" }),
-        ],
-        ratings: [
-          new FakeRating({
-            criterionId: "criterion1",
-            optionId: "option1",
-            weight: 1,
-          }),
-          new FakeRating({
-            criterionId: "criterion1",
-            optionId: "option2",
-            weight: 2,
-          }),
-          new FakeRating({
-            criterionId: "criterion2",
-            optionId: "option1",
-            weight: 3,
-          }),
-          new FakeRating({
-            criterionId: "criterion2",
-            optionId: "option2",
-            weight: 4,
-          }),
-        ],
-        user: new FakeUser(),
       },
       data
     );

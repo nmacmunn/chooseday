@@ -22,7 +22,9 @@ export function isDecisionLoadedContext(
     isDecisionLoadingContext(context) &&
     context.criteria !== undefined &&
     context.options !== undefined &&
-    context.ratings !== undefined
+    context.ratings !== undefined &&
+    context.userCriteria !== undefined &&
+    context.userRatings !== undefined
   );
 }
 
@@ -59,9 +61,8 @@ export function isRatingsContext(
 ): context is RatingsContext {
   return (
     isCriteriaContext(context) &&
-    context.criteria.length >= 2 &&
+    context.userCriteria.length >= 2 &&
     context.criterion !== undefined &&
-    context.options.length >= 2 &&
-    context.ratings.length >= 4
+    context.userRatings.length >= 4
   );
 }

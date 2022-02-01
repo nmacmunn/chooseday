@@ -18,6 +18,12 @@ describe("types", () => {
       expect(exports).toEqual({});
     });
   });
+  describe("result", () => {
+    it("should not export anything", () => {
+      const exports = jest.requireActual("../src/types/result");
+      expect(exports).toEqual({});
+    });
+  });
   describe("state", () => {
     it("should not export anything", () => {
       const exports = jest.requireActual("../src/types/state");

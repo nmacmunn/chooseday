@@ -1,9 +1,6 @@
 import "@testing-library/jest-dom";
 import { act, render, RenderResult } from "@testing-library/svelte";
-import { ResultsContext } from "../../src/types/context";
-import type { Processed } from "../../src/util/results";
-import { processResults } from "../../src/util/results";
-import { FakeCriterion } from "../helpers/fake";
+import type { Result } from "../../src/model/result";
 import { MachineHarness } from "../helpers/machine";
 
 jest.disableAutomock();
@@ -12,21 +9,15 @@ jest.mock("chart.js/auto");
 const ResultsOverall = () => require("../../src/components/results-overall");
 
 class Harness extends MachineHarness {
-  processed: Processed;
+  processed: Result;
   result: RenderResult;
   render() {
     const state = this.state;
-    const processed = (this.processed = processResults(
-      state.context as ResultsContext
-    ));
-    this.result = render(ResultsOverall(), { processed, state });
+    this.result = render(ResultsOverall(), { state });
   }
   async refresh() {
     const state = this.state;
-    const processed = (this.processed = processResults(
-      state.context as ResultsContext
-    ));
-    this.result.component.$set({ processed, state });
+    this.result.component.$set({ state });
     await act();
   }
   get barChart() {
@@ -55,25 +46,15 @@ describe("results overall component", () => {
   it("should render each option's score", () => {
     harness.enter("results");
     harness.render();
-    expect(harness.result.getAllByText("50")).toHaveLength(2);
+    expect(harness.result.getByText("75")).toBeVisible();
+    expect(harness.result.getByText("25")).toBeVisible();
   });
   it("should indicate your top choice", () => {
     harness.enter("results");
-    // break the tie
-    harness.sendCriteriaLoaded([
-      new FakeCriterion({
-        id: "criterion1",
-        title: "First Criterion",
-        weight: 1,
-      }),
-      new FakeCriterion({
-        id: "criterion2",
-        title: "Second Criterion",
-        weight: 2,
-      }),
-    ]);
     harness.render();
-    expect(harness.result.getByText("Your top choice")).toBeVisible();
+    expect(
+      harness.result.getByText("Top choice of you and pal@example.com")
+    ).toBeVisible();
   });
   it("should render a bar chart", () => {
     harness.enter("results");

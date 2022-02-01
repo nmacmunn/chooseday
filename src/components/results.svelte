@@ -1,29 +1,31 @@
 <script lang="ts">
   import type { ResultsState } from "../types/state";
-  import { processResults } from "../util/results";
   import NextBack from "./next-back.svelte";
   import ResultsOverall from "./results-overall.svelte";
   import ResultsUser from "./results-user.svelte";
+  import { getName } from "../util/name";
   export let state: ResultsState;
-  $: processed = processResults(state.context);
+  $: selected = state.context.user;
 </script>
 
 <h5 class="uk-text-light uk-heading-line">
   <span class="uk-margin-left">Best overall</span>
 </h5>
-<ResultsOverall {processed} {state} />
+<ResultsOverall {state} />
 
 <h5 class="uk-text-light uk-heading-line">
   <span class="uk-margin-left">Results by collaborator</span>
 </h5>
 <ul uk-tab>
-  {#each ["yours"] as user}
-    <li class:uk-active={true}>
-      <a href={user} on:click|preventDefault>{user}</a>
+  {#each state.context.result.getDoneUsers() as user}
+    <li class:uk-active={user.id === selected.id}>
+      <a href={user.id} on:click|preventDefault={() => (selected = user)}>
+        {getName(user, state.context.user, state.context.decision)}
+      </a>
     </li>
   {/each}
 </ul>
-<ResultsUser {processed} {state} />
+<ResultsUser {state} user={selected} />
 
 <NextBack back={{ label: "Collaborators", event: { type: "COLLABORATORS" } }} />
 

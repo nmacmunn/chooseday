@@ -91,15 +91,51 @@ export class MachineHarness {
       this.sendCriteria();
       return;
     }
+    const collaborator = new FakeUser({
+      id: "collaborator",
+      email: "pal@example.com",
+    });
     this.sendCriteriaLoaded([
       new FakeCriterion({ id: "criterion1", title: "First Criterion" }),
       new FakeCriterion({ id: "criterion2", title: "Second Criterion" }),
+      new FakeCriterion({
+        id: "criterion3",
+        title: "Third Criterion",
+        weight: 1,
+        user: collaborator,
+      }),
+      new FakeCriterion({
+        id: "criterion4",
+        title: "Fourth Criterion",
+        weight: 2,
+        user: collaborator,
+      }),
     ]);
     this.sendRatingsLoaded([
       new FakeRating({ criterionId: "criterion1", optionId: "option1" }),
       new FakeRating({ criterionId: "criterion1", optionId: "option2" }),
       new FakeRating({ criterionId: "criterion2", optionId: "option1" }),
       new FakeRating({ criterionId: "criterion2", optionId: "option2" }),
+      new FakeRating({
+        criterionId: "criterion3",
+        optionId: "option1",
+        user: collaborator,
+      }),
+      new FakeRating({
+        criterionId: "criterion3",
+        optionId: "option2",
+        user: collaborator,
+      }),
+      new FakeRating({
+        criterionId: "criterion4",
+        optionId: "option1",
+        user: collaborator,
+      }),
+      new FakeRating({
+        criterionId: "criterion4",
+        optionId: "option2",
+        user: collaborator,
+      }),
     ]);
     if (stateName === "ratings") {
       this.sendRatings();
@@ -125,6 +161,30 @@ export class MachineHarness {
         criterionId: "criterion2",
         optionId: "option2",
         weight: 1,
+      }),
+      new FakeRating({
+        criterionId: "criterion3",
+        optionId: "option1",
+        weight: 2,
+        user: collaborator,
+      }),
+      new FakeRating({
+        criterionId: "criterion3",
+        optionId: "option2",
+        weight: 1,
+        user: collaborator,
+      }),
+      new FakeRating({
+        criterionId: "criterion4",
+        optionId: "option1",
+        weight: 2,
+        user: collaborator,
+      }),
+      new FakeRating({
+        criterionId: "criterion4",
+        optionId: "option2",
+        weight: 1,
+        user: collaborator,
       }),
     ]);
     if (stateName === "collaborators") {

@@ -32,17 +32,15 @@
     }
   }
 
-  const criteriaFilter = _.matchesProperty("user.id", state.context.user.id);
-
-  $: criteria = state.context.criteria.filter(criteriaFilter);
-  $: selected = state.context.criterion;
-  $: selectedIndex = criteria.indexOf(selected);
+  $: selectedIndex = state.context.userCriteria.indexOf(
+    state.context.criterion
+  );
   $: optionTitles = _.chain(state.context.options)
     .keyBy("id")
     .mapValues("title")
     .value();
   $: all = _.chain(state.context.ratings)
-    .filter(_.matchesProperty("criterionId", selected.id))
+    .filter(_.matchesProperty("criterionId", state.context.criterion.id))
     .orderBy("weight", "desc")
     .value();
   $: byWeight = _.groupBy(all, "weight");
@@ -54,8 +52,8 @@
   };
 
   let next: { label: string; event: AppEvent };
-  $: if (selectedIndex + 1 < criteria.length) {
-    const criterion = criteria[selectedIndex + 1];
+  $: if (selectedIndex + 1 < state.context.userCriteria.length) {
+    const criterion = state.context.userCriteria[selectedIndex + 1];
     next = {
       label: criterion.title,
       event: { type: "CRITERION", criterion },
@@ -69,7 +67,7 @@
 
   let back: { label: string; event: AppEvent };
   $: if (selectedIndex > 0) {
-    const criterion = criteria[selectedIndex - 1];
+    const criterion = state.context.userCriteria[selectedIndex - 1];
     back = {
       label: criterion.title,
       event: { type: "CRITERION", criterion },
@@ -83,10 +81,10 @@
 </script>
 
 <ul uk-tab>
-  {#each criteria as criterion (criterion.id)}
+  {#each state.context.userCriteria as criterion (criterion.id)}
     <li
-      class:uk-active={selected === criterion}
-      class:disabled={selected !== criterion &&
+      class:uk-active={criterion === state.context.criterion}
+      class:disabled={criterion !== state.context.criterion &&
         !state.can({ type: "CRITERION", criterion })}
     >
       <a
@@ -100,7 +98,7 @@
 
 <h5 class="uk-text-light">
   <span>Sort options by</span>
-  <span class="uk-background-muted title">{selected.title}</span>
+  <span class="uk-background-muted title">{state.context.criterion.title}</span>
   <span>from best to worst</span>
 </h5>
 

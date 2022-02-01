@@ -1,5 +1,16 @@
-const Xstate = () => jest.requireMock("xstate");
+import {
+  FakeCriterion,
+  FakeDecision,
+  FakeOption,
+  FakeRating,
+  FakeUser,
+} from "../helpers/fake";
 
+jest.unmock("lodash");
+jest.unmock("../helpers/fake");
+
+const Xstate = () => jest.requireMock("xstate");
+const ResultUtil = () => jest.requireMock("../../src/util/result");
 const runScript = () => jest.requireActual("../../src/util/action");
 
 describe("actions", () => {
@@ -79,33 +90,73 @@ describe("actions", () => {
       const { setCriteria } = runScript();
       expect(Xstate().assign).toHaveReturnedWith(setCriteria);
     });
-    it("should set 'criteria' and 'criterion'", () => {
-      runScript();
-      expect(Xstate().assign).toHaveBeenCalledWith({
-        criteria: expect.any(Function),
-        criterion: expect.any(Function),
+    it("should de defined by an assignment function", () => {
+      const { setCriteria } = runScript();
+      const [assigner] = setCriteria.args;
+      expect(Xstate().assign).toHaveBeenCalledWith(assigner);
+    });
+    it("should pick 'criteria' from the event", () => {
+      const { setCriteria } = runScript();
+      const [assigner] = setCriteria.args;
+      const context = {};
+      const criteria = [];
+      const event = { criteria };
+      expect(assigner(context, event).criteria).toBe(criteria);
+    });
+    it("should assign a result instance", () => {
+      const result = {};
+      ResultUtil().getResult.mockReturnValue(result);
+      const { setCriteria } = runScript();
+      const [assigner] = setCriteria.args;
+      const context = {
+        user: new FakeUser(),
+      };
+      const criteria = [new FakeCriterion(), new FakeCriterion()];
+      const event = { criteria };
+      expect(assigner(context, event).result).toEqual(result);
+      expect(ResultUtil().getResult).toHaveBeenCalledWith({
+        ...context,
+        criteria,
+        criterion: criteria[0],
+        userCriteria: criteria,
       });
     });
-    it("should pick 'criteria' from CriteriaLoadedEvent", () => {
+    it("should filter 'criteria' to get 'userCriteria'", () => {
       const { setCriteria } = runScript();
-      const criteria = [];
-      expect(setCriteria.args[0].criteria({}, { criteria })).toBe(criteria);
+      const [assigner] = setCriteria.args;
+      const context = {
+        user: new FakeUser(),
+      };
+      const criteria = [
+        new FakeCriterion(),
+        new FakeCriterion({ user: new FakeUser({ id: "otherguy" }) }),
+      ];
+      const event = { criteria };
+      expect(assigner(context, event).userCriteria).toEqual([criteria[0]]);
     });
-    it("should pick 'criterion' from context if its also in 'criteria'", () => {
+    it("should pick 'criterion' from context if its in 'criteria'", () => {
       const { setCriteria } = runScript();
-      runScript();
-      const criterion = {};
+      const [assigner] = setCriteria.args;
+      const criterion = new FakeCriterion();
+      const context = {
+        criterion,
+        user: new FakeUser(),
+      };
       const criteria = [criterion];
-      expect(setCriteria.args[0].criterion({ criterion }, { criteria })).toBe(
-        criterion
-      );
+      const event = { criteria };
+      expect(assigner(context, event).criterion).toBe(criterion);
     });
-    it("should pick 'criterion' from 'criteria' by default", () => {
+    it("should pick 'criterion' from context if its in 'criteria'", () => {
       const { setCriteria } = runScript();
-      runScript();
-      const criterion = {};
-      const criteria = [criterion];
-      expect(setCriteria.args[0].criterion({}, { criteria })).toBe(criterion);
+      const [assigner] = setCriteria.args;
+      const criterion = new FakeCriterion();
+      const context = {
+        criterion,
+        user: new FakeUser(),
+      };
+      const criteria = [new FakeCriterion()];
+      const event = { criteria };
+      expect(assigner(context, event).criterion).toBe(criteria[0]);
     });
   });
   describe("setCriterion", () => {
@@ -184,16 +235,50 @@ describe("actions", () => {
       const { setRatings } = runScript();
       expect(Xstate().assign).toHaveReturnedWith(setRatings);
     });
-    it("should set 'ratings'", () => {
-      runScript();
-      expect(Xstate().assign).toHaveBeenCalledWith({
-        ratings: expect.any(Function),
+    it("should de defined by an assignment function", () => {
+      const { setRatings } = runScript();
+      const [assigner] = setRatings.args;
+      expect(Xstate().assign).toHaveBeenCalledWith(assigner);
+    });
+    it("should pick 'ratings' from the event", () => {
+      const { setRatings } = runScript();
+      const [assigner] = setRatings.args;
+      const context = {
+        user: new FakeUser(),
+      };
+      const ratings = [];
+      const event = { ratings };
+      expect(assigner(context, event).ratings).toBe(ratings);
+    });
+    it("should assign a result instance", () => {
+      const result = {};
+      ResultUtil().getResult.mockReturnValue(result);
+      const { setRatings } = runScript();
+      const [assigner] = setRatings.args;
+      const context = {
+        user: new FakeUser(),
+      };
+      const ratings = [new FakeRating(), new FakeRating()];
+      const event = { ratings };
+      expect(assigner(context, event).result).toEqual(result);
+      expect(ResultUtil().getResult).toHaveBeenCalledWith({
+        ...context,
+        ratings,
+        userRatings: ratings,
       });
     });
-    it("should pick 'ratings' from RatingsLoadedEvent", () => {
+    it("should get 'userRatings' by filtering 'ratings'", () => {
       const { setRatings } = runScript();
-      const ratings = [];
-      expect(setRatings.args[0].ratings({}, { ratings })).toBe(ratings);
+      const [assigner] = setRatings.args;
+      const context = {
+        user: new FakeUser(),
+      };
+      const ratings = [
+        new FakeRating(),
+        new FakeRating({ user: new FakeUser({ id: "otherguy" }) }),
+      ];
+      const event = { ratings };
+      expect(assigner(context, event).userRatings).toEqual([ratings[0]]);
     });
   });
   describe("setUser", () => {
@@ -214,5 +299,3 @@ describe("actions", () => {
     });
   });
 });
-
-export {};

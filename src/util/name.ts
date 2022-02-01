@@ -107,14 +107,15 @@ function getUserTitle(user: User, role: Role, upper: boolean) {
  * Given an array of users and their roles, return a description of the group
  */
 function getUserTitles(userRoles: [User, Role][], upper: boolean) {
-  if (userRoles.length === 0) {
+  const [first, second] = userRoles;
+  if (!first) {
     return "";
   }
-  const name1 = getUserTitle(...userRoles[0], upper);
-  if (userRoles.length === 1) {
+  const name1 = getUserTitle(...first, upper);
+  if (!second) {
     return name1;
   }
-  const name2 = getUserTitle(...userRoles[1], false);
+  const name2 = getUserTitle(...second, false);
   if (userRoles.length === 2) {
     return `${name1} and ${name2}`;
   }

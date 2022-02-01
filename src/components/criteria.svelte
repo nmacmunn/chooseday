@@ -51,8 +51,7 @@
     }
   }
 
-  $: all = state.context.criteria;
-  $: byWeight = _.groupBy(all, "weight");
+  $: byWeight = _.groupBy(state.context.userCriteria, "weight");
   $: weights = _.keys(byWeight).map(Number).sort().reverse();
   let top: SortableList;
 </script>
@@ -68,15 +67,17 @@
   <span>Sort criteria from most to least important</span>
 </h5>
 
-{#if all.length < 2}
-  <PlaceholderCard>
-    <span uk-icon="info" class="uk-margin-right" />
-    Create at least {all.length ? "one more criterion" : "two criteria"}
-  </PlaceholderCard>
-{/if}
 <div class="uk-text-muted uk-text-center uk-margin">
   <b>Most</b> important
 </div>
+{#if state.context.userCriteria.length < 2}
+  <PlaceholderCard>
+    <span uk-icon="info" class="uk-margin-right" />
+    Create at least {state.context.userCriteria.length
+      ? "one more criterion"
+      : "two criteria"}
+  </PlaceholderCard>
+{/if}
 <SortableList bind:this={top}>
   {#each weights as weight ({})}
     <SortableItem>

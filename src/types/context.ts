@@ -1,3 +1,4 @@
+import type { Result } from "../model/result";
 import type { Criterion, Decision, Option, Rating, User } from "./data";
 
 export type AppContext =
@@ -23,8 +24,11 @@ export interface BaseContext {
   decisionId?: string;
   error?: string;
   ratings?: Rating[];
+  result?: Result;
   options?: Option[];
   user?: User;
+  userCriteria?: Criterion[];
+  userRatings?: Rating[];
 }
 
 export interface CollaboratorsContext extends DecisionLoadingContext {}
@@ -42,6 +46,9 @@ export interface DecisionLoadedContext extends DecisionLoadingContext {
   criteria: Criterion[];
   options: Option[];
   ratings: Rating[];
+  result: Result;
+  userCriteria: Criterion[];
+  userRatings: Rating[];
 }
 
 export interface DecisionLoadingContext extends SignedInContext {
@@ -67,6 +74,8 @@ export interface RatingsContext extends CriteriaContext {
   criteria: [Criterion, Criterion, ...Criterion[]];
   criterion: Criterion;
   ratings: [Rating, Rating, Rating, Rating, ...Rating[]];
+  userCriteria: [Criterion, Criterion, ...Criterion[]];
+  userRatings: [Rating, Rating, Rating, Rating, ...Rating[]];
 }
 
 export interface ResultsContext extends RatingsContext {}
