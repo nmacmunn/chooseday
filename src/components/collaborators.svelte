@@ -28,10 +28,10 @@
     decision = decision;
   }
 
-  async function editEmail(i: number) {
-    const email = await UIkit.modal.prompt("Title", decision.collaborators[i]);
-    if (typeof email == "string") {
-      decision.collaborators[i] = email;
+  async function editEmail(email: string, i: number) {
+    const updated = await UIkit.modal.prompt("Title", email);
+    if (typeof updated == "string") {
+      decision.collaborators[i] = updated;
       updateDecision(decision);
       decision = decision;
     }
@@ -63,10 +63,12 @@
       <ListCard>
         <span slot="left">{email}</span>
         <span slot="right">
-          <More
-            onDelete={() => removeCollaborator(i)}
-            onEdit={() => editEmail(i)}
-          />
+          {#if isCreator}
+            <More
+              onDelete={() => removeCollaborator(i)}
+              onEdit={() => editEmail(email, i)}
+            />
+          {/if}
         </span>
       </ListCard>
     </li>
