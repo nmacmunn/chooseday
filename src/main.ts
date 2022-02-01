@@ -8,9 +8,11 @@ import { getEnv } from "./util/env";
 
 const env = getEnv();
 
-Sentry.init({
-  dsn: env.VITE_SENTRY_DSN as string,
-});
+if (env.PROD) {
+  Sentry.init({
+    dsn: env.VITE_SENTRY_DSN as string,
+  });
+}
 
 (UIkit.use as any)(Icons);
 

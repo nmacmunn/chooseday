@@ -12,11 +12,13 @@ const runScript = () => jest.requireActual("../src/main");
 
 describe("main", () => {
   beforeEach(() => jest.resetModules());
-  it("should initialize sentry", () => {
-    Env().getEnv.mockReturnValue({ VITE_SENTRY_DSN: "sentry" });
-    document.body.innerHTML = `<div id="app" />`;
-    runScript();
-    expect(Sentry().init).toHaveBeenCalledWith({ dsn: "sentry" });
+  describe("production environment", () => {
+    it("should initialize sentry", () => {
+      Env().getEnv.mockReturnValue({ PROD: true, VITE_SENTRY_DSN: "sentry" });
+      document.body.innerHTML = `<div id="app" />`;
+      runScript();
+      expect(Sentry().init).toHaveBeenCalledWith({ dsn: "sentry" });
+    });
   });
   it("should load the uikit icons plugin", () => {
     document.body.innerHTML = `<div id="app" />`;
