@@ -1,10 +1,10 @@
-# Indecisionator
+# Chooseday
 
-Indecisionator is an application that helps you make better decisions with greater confidence.
+Chooseday is an application that helps you make better decisions with greater confidence.
 
 ## Live Demo
 
-Try the current version [here](https://indecisionator.web.app). Please be aware that this is for demonstration purposes only and your data may be deleted at any time.
+Try the current version [here](https://chooseday.app). Please be aware that this is for demonstration purposes only and your data may be deleted at any time.
 
 ## Getting Started
 
@@ -12,8 +12,8 @@ Try the current version [here](https://indecisionator.web.app). Please be aware 
 - [Create a Firebase project](https://firebase.google.com/docs/web/setup#create-project)
 - Run the following in a terminal
   ```sh
-  git clone git@github.com:nmacmunn/indecisionator.git
-  cd indecisionator
+  git clone git@github.com:nmacmunn/chooseday.git
+  cd chooseday
   npm install
   npm run dev
   ```
@@ -29,7 +29,7 @@ Try the current version [here](https://indecisionator.web.app). Please be aware 
 
 ## Technology
 
-Indecisionator is built with:
+Chooseday is built with:
 
 - [chart.js](https://www.chartjs.org/)
 - [firebase](https://firebase.google.com/)

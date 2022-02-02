@@ -9,7 +9,7 @@ jest.unmock("xstate");
 describe("App", () => {
   it("should render the navbar", () => {
     const result = render(App);
-    expect(result.getByText("Indecisionator II")).toBeVisible();
+    expect(result.getByText("Chooseday")).toBeVisible();
   });
   it("should render the nav", () => {
     const result = render(App);

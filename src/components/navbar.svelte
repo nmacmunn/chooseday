@@ -5,7 +5,7 @@
 
 <nav class="uk-navbar-container uk-navbar-transparent uk-margin" uk-navbar>
   <div class="uk-navbar-center">
-    <div class="uk-navbar-item uk-logo">Indecisionator II</div>
+    <div class="uk-navbar-item uk-logo">Chooseday</div>
   </div>
   {#if $state.context.user}
     <div class="uk-navbar-right">
@@ -13,7 +13,7 @@
         <ul class="uk-iconnav">
           <li>
             <a
-              href="https://github.com/nmacmunn/indecisionator"
+              href="https://github.com/nmacmunn/chooseday"
               target="_blank"
               aria-label="Github"
             >

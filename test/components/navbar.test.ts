@@ -21,7 +21,7 @@ class Harness extends MachineHarness {
     return this.result.getByText("Link to Google").parentElement;
   }
   get logo() {
-    return this.result.getByText("Indecisionator II");
+    return this.result.getByText("Chooseday");
   }
   get signOutLink() {
     return this.result.getByText("Sign Out");
