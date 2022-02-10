@@ -1,3 +1,3 @@
-<div class="uk-text-large uk-text-light uk-margin-small uk-visible@m">
+<div class="uk-text-large uk-text-light uk-margin-small">
   <slot />
 </div>

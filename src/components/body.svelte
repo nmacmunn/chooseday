@@ -1,7 +1,6 @@
 <script lang="ts">
   import { state } from "../machine";
   import Collaborators from "./collaborators.svelte";
-  import Creating from "./creating.svelte";
   import Criteria from "./criteria.svelte";
   import Decisions from "./decisions.svelte";
   import Heading from "./heading.svelte";
@@ -10,40 +9,56 @@
   import Ratings from "./ratings.svelte";
   import Results from "./results.svelte";
   import SignIn from "./sign-in.svelte";
+  import { stateValue } from "../util/state-value";
+
+  const {
+    collaborators,
+    criteria,
+    decisionLoaded,
+    decisionLoading,
+    decisionsLoaded,
+    decisionsLoading,
+    options,
+    preAuth,
+    ratings,
+    results,
+    route,
+    signingIn,
+    signedOut,
+  } = stateValue;
 </script>
 
-{#if $state.matches("preAuth") || $state.matches( { auth: "signingIn" } ) || $state.matches( { auth: { signedIn: { decision: "loading" } } } ) || $state.matches( { auth: { signedIn: { decisions: "loading" } } } )}
+{#if $state.matches("error")}
+  <Heading>Oh no!</Heading>
+  <div>{$state.context.error}</div>
+{:else if $state.matches(preAuth) || $state.matches(signingIn) || $state.matches(route) || $state.matches(decisionLoading) || $state.matches(decisionsLoading)}
   <Loading text="Loading, please wait..." />
-{:else if $state.matches({ auth: "signedOut" })}
+{:else if $state.matches(signedOut)}
   <SignIn />
-{:else if $state.matches({ auth: { signedIn: { decisions: "loaded" } } })}
-  <Heading>Decisions</Heading>
+{:else if $state.matches(decisionsLoaded)}
   <Decisions state={$state} />
-{:else if $state.matches({ auth: { signedIn: { decisions: "creating" } } })}
-  <Creating state={$state} />
-{:else if $state.matches( { auth: { signedIn: { decision: { loaded: "options" } } } } )}
-  <Heading>
-    {$state.context.decision.title} <i>options</i>
-  </Heading>
-  <Options state={$state} />
-{:else if $state.matches( { auth: { signedIn: { decision: { loaded: "criteria" } } } } )}
-  <Heading>
-    {$state.context.decision.title} <i>criteria</i>
-  </Heading>
-  <Criteria state={$state} />
-{:else if $state.matches( { auth: { signedIn: { decision: { loaded: "ratings" } } } } )}
-  <Heading>
-    {$state.context.decision.title} <i>ratings</i>
-  </Heading>
-  <Ratings state={$state} />
-{:else if $state.matches( { auth: { signedIn: { decision: { loaded: "collaborators" } } } } )}
-  <Heading>
-    {$state.context.decision.title} <i>collaborators</i>
-  </Heading>
-  <Collaborators state={$state} />
-{:else if $state.matches( { auth: { signedIn: { decision: { loaded: "results" } } } } )}
-  <Heading>
-    {$state.context.decision.title} <i>results</i>
-  </Heading>
-  <Results state={$state} />
+{:else if $state.matches(decisionLoaded)}
+  <i class="uk-text-large uk-text-light uk-margin-small">
+    {$state.context.decision.title}
+  </i>
+  {#if $state.matches(options)}
+    <Options state={$state} />
+  {:else if $state.matches(criteria)}
+    <Criteria state={$state} />
+  {:else if $state.matches(ratings)}
+    <Ratings state={$state} />
+  {:else if $state.matches(collaborators)}
+    <Collaborators state={$state} />
+  {:else if $state.matches(results)}
+    <Results state={$state} />
+  {/if}
 {/if}
+
+<style>
+  i {
+    background-size: 1px 8px;
+    background-image: linear-gradient(0deg, #ffd166, #ffd166);
+    background-repeat: repeat-x;
+    background-position-y: 20px;
+  }
+</style>

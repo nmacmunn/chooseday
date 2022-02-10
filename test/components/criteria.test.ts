@@ -83,17 +83,17 @@ describe("criteria component", () => {
     harness.enter("criteria");
     harness.render();
     expect(
-      harness.result.getByText("Sort criteria from most to least important")
+      harness.result.getByText("Sort from most to least important")
     ).toBeVisible();
   });
-  it("should render a placeholder card if there are no criteria", () => {
+  it("should render an alert if there are no criteria", () => {
     harness.enter("criteria");
     harness.render();
     expect(
       harness.result.getByText("Create at least two criteria")
     ).toBeVisible();
   });
-  it("should render a placeholder card if there is one criteria", () => {
+  it("should render an alert if there is one criteria", () => {
     harness.enter("criteria");
     harness.sendCriteriaLoaded([new FakeCriterion()]);
     harness.render();
@@ -104,9 +104,12 @@ describe("criteria component", () => {
   it("should render a most important label", () => {
     harness.enter("criteria");
     harness.render();
-    expect(
-      harness.result.getByText(textContentMatcher("Most important"))
-    ).toBeVisible();
+    expect(harness.result.getByText("Most important")).toBeVisible();
+  });
+  it("should render a placeholder if there are no critera", () => {
+    harness.enter("criteria");
+    harness.render();
+    expect(harness.result.getByText("No criteria yet")).toBeVisible();
   });
   it("should render each criterion", () => {
     harness.enter("criteria");
@@ -121,9 +124,7 @@ describe("criteria component", () => {
   it("should render a least important label", () => {
     harness.enter("criteria");
     harness.render();
-    expect(
-      harness.result.getByText(textContentMatcher("Least important"))
-    ).toBeVisible();
+    expect(harness.result.getByText("Least important")).toBeVisible();
   });
   it("should render an options button", () => {
     harness.enter("criteria");

@@ -1,5 +1,4 @@
 import {
-  addDoc,
   doc,
   increment,
   onSnapshot,
@@ -14,6 +13,7 @@ import {
   criterionRef,
   decisionRef,
   getCriteria,
+  getDecisions,
   getOptions,
   getRatings,
   optionRef,
@@ -26,6 +26,21 @@ import {
   queryOptions,
   queryRatings,
 } from "./query";
+
+export function addCollaborator(
+  { collaborators, id }: Decision,
+  collaborator: User & { email: string }
+) {
+  if (
+    !collaborators ||
+    collaborators.find(({ id }) => id === collaborator.id)
+  ) {
+    return;
+  }
+  collaborators.push({ ...collaborator, active: true });
+  const ref = decisionRef(id);
+  updateDoc(ref, { collaborators });
+}
 
 /**
  * Create a new criterion, increment the weight of existing criteria, and
@@ -68,7 +83,7 @@ export async function addCriterion(
 export function addDecision(creator: User, title: string): string {
   const ref = doc(decisionCollection);
   setDoc(ref, {
-    collaborators: [],
+    collaborators: undefined,
     created: Date.now(),
     creator,
     title,
@@ -103,6 +118,30 @@ export async function addOption(decisionId: string, title: string) {
       });
     });
   });
+}
+
+export function enableCollaborators({ collaborators, id }: Decision) {
+  if (collaborators) {
+    return;
+  }
+  const ref = decisionRef(id);
+  updateDoc(ref, { collaborators: [] });
+}
+
+export function removeCollaborator(
+  { collaborators, id }: Decision,
+  collaborator: User
+) {
+  if (!collaborators) {
+    return;
+  }
+  const record = collaborators.find(({ id }) => id === collaborator.id);
+  if (!record) {
+    return;
+  }
+  record.active = false;
+  const ref = decisionRef(id);
+  updateDoc(ref, { collaborators });
 }
 
 /**
@@ -213,6 +252,17 @@ export function subscribeCollaboratorDecisions(
   });
 }
 
+export function subscribeDecision(
+  decisionId: string,
+  callback: (decision: Decision | undefined) => void
+) {
+  const ref = decisionRef(decisionId);
+  return onSnapshot(ref, (decision) => {
+    const result = decision.exists() ? mergeId(decision) : undefined;
+    callback(result);
+  });
+}
+
 /**
  * Subscribe to options with the specified decisionId.
  */
@@ -238,6 +288,17 @@ export function subscribeRatings(
   return onSnapshot(query, (ratings) => {
     const results = ratings.docs.map(mergeId);
     callback(results);
+  });
+}
+
+/**
+ * After an anonymous user links to an account with email, update all of
+ * their decisions.
+ */
+export async function updateCreator(creator: User & { email: string }) {
+  const decisions = await getDecisions(creator);
+  runTransaction(firestore, async (transaction) => {
+    decisions.forEach(({ ref }) => transaction.update(ref, { creator }));
   });
 }
 

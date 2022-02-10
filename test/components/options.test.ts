@@ -18,10 +18,10 @@ class Harness extends MachineHarness {
     return this.result.getByPlaceholderText("Pizza, sushi, etc.");
   }
   get deleteButton() {
-    return this.result.getByTitle("delete");
+    return this.result.getByText("Delete");
   }
   get editButton() {
-    return this.result.getByTitle("edit");
+    return this.result.getByText("Edit");
   }
   get moreButton() {
     return this.result.getByLabelText("more").parentElement;
@@ -63,13 +63,6 @@ describe("options component", () => {
     harness.render();
     expect(harness.createInput).toBeVisible();
   });
-  it("should render 'Options you're considering'", async () => {
-    harness.enter("options");
-    harness.render();
-    expect(
-      harness.result.getByText("Options you're considering")
-    ).toBeVisible();
-  });
   it("should add an option when create input is submitted", async () => {
     harness.enter("options");
     harness.render();
@@ -77,20 +70,25 @@ describe("options component", () => {
     await harness.submitCreateInput();
     expect(Db().addOption).toHaveBeenCalledWith("decisionId", "New Option");
   });
-  it("should render a placeholder if there are no options", () => {
+  it("should render an alert if there are no options", () => {
     harness.enter("options");
     harness.render();
     expect(
       harness.result.getByText("Create at least two options")
     ).toBeVisible();
   });
-  it("should render a placeholder if there is one option", () => {
+  it("should render an alert if there is one option", () => {
     harness.enter("options");
     harness.sendOptionsLoaded([new FakeOption()]);
     harness.render();
     expect(
       harness.result.getByText("Create at least one more option")
     ).toBeVisible();
+  });
+  it("should render a placeholder if there are no options", () => {
+    harness.enter("options");
+    harness.render();
+    expect(harness.result.getByText("No options yet")).toBeVisible();
   });
   it("should render each option title", () => {
     harness.enter("options");
@@ -154,12 +152,8 @@ describe("options component", () => {
   });
   describe("user is not the decision creator", () => {
     beforeEach(() => {
-      harness.enter("signingIn");
+      harness.enter("options");
       harness.sendSignIn(new FakeUser({ id: "someone" }));
-      harness.sendDecision();
-      harness.sendCriteriaLoaded();
-      harness.sendOptionsLoaded();
-      harness.sendRatingsLoaded();
       harness.render();
     });
     it("should not render the create input if user is not creator", () => {

@@ -6,6 +6,7 @@ import type {
   User,
 } from "../../src/types/data";
 import type { AppState } from "../../src/types/state";
+import type { StateName } from "../../src/util/state-value";
 import {
   FakeCriterion,
   FakeDecision,
@@ -24,20 +25,6 @@ jest.unmock("../../src/util/guard");
 jest.mock("../../src/util/service");
 
 const Machine = () => jest.requireActual("../../src/machine");
-
-type StateName =
-  | "error"
-  | "signingIn"
-  | "signedOut"
-  | "decisionsLoading"
-  | "decisionsLoaded"
-  | "creating"
-  | "decisionLoading"
-  | "options"
-  | "criteria"
-  | "ratings"
-  | "collaborators"
-  | "results";
 
 export class MachineHarness {
   state: AppState;
@@ -60,22 +47,24 @@ export class MachineHarness {
       return;
     }
     this.sendSignIn();
+    if (stateName === "route") {
+      return;
+    }
     if (stateName === "decisionsLoading") {
+      this.sendDecisions();
       return;
     }
-    this.sendCollaboratorDecisionsLoaded();
-    this.sendCreatorDecisionsLoaded();
     if (stateName === "decisionsLoaded") {
+      this.sendDecisions();
+      this.sendCollaboratorDecisionsLoaded();
+      this.sendCreatorDecisionsLoaded();
       return;
     }
-    if (stateName === "creating") {
-      this.sendCreating();
-      return;
-    }
-    this.sendDecision();
+    this.sendLoad();
     if (stateName === "decisionLoading") {
       return;
     }
+    this.sendDecisionLoaded();
     this.sendCriteriaLoaded();
     this.sendOptionsLoaded();
     this.sendRatingsLoaded();
@@ -199,9 +188,6 @@ export class MachineHarness {
   sendCollaboratorDecisionsLoaded(decisions: Decision[] = []) {
     Machine().send({ type: "COLLABORATORDECISIONSLOADED", decisions });
   }
-  sendCreating(decisionId = "decisionId") {
-    Machine().send({ type: "CREATING", decisionId });
-  }
   sendCreatorDecisionsLoaded(decisions: Decision[] = []) {
     Machine().send({ type: "CREATORDECISIONSLOADED", decisions });
   }
@@ -217,11 +203,14 @@ export class MachineHarness {
   sendDecisions() {
     Machine().send({ type: "DECISIONS" });
   }
-  sendDecision(decision: Decision = new FakeDecision()) {
-    Machine().send({ type: "DECISION", decision });
+  sendDecisionLoaded(decision: Decision = new FakeDecision()) {
+    Machine().send({ type: "DECISIONLOADED", decision });
   }
   sendError(error: string = "error") {
     Machine().send({ type: "ERROR", error });
+  }
+  sendLoad(decisionId = "decisionId") {
+    Machine().send({ type: "LOAD", decisionId });
   }
   sendOptions() {
     Machine().send({ type: "OPTIONS" });

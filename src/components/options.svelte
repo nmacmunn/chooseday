@@ -40,19 +40,25 @@
   />
 {/if}
 
-<h5 class="uk-text-light uk-heading-line">
-  <span class="uk-margin-left">Options you're considering</span>
-</h5>
-
 {#if sorted.length < 2}
-  <PlaceholderCard>
+  <div class="uk-alert uk-alert-primary">
     <span uk-icon="info" class="uk-margin-right" />
     <span
       >Create at least {sorted.length ? "one more option" : "two options"}</span
     >
-  </PlaceholderCard>
+  </div>
 {/if}
+
+<h4 class="uk-text-light uk-heading-line">
+  <span class="uk-margin-left">Options</span>
+</h4>
+
 <ul class="uk-grid-small uk-child-width-1-1" uk-grid>
+  {#if sorted.length === 0}
+    <li>
+      <PlaceholderCard>No options yet</PlaceholderCard>
+    </li>
+  {/if}
   {#each sorted as option (option.id)}
     <li>
       <ListCard>
@@ -61,8 +67,18 @@
           {#if isCreator}
             <div class="uk-width-auto">
               <More
-                onDelete={() => removeOption(option)}
-                onEdit={() => editTitle(option)}
+                actions={[
+                  {
+                    title: "Edit",
+                    icon: "pencil",
+                    callback: () => editTitle(option),
+                  },
+                  {
+                    title: "Delete",
+                    icon: "trash",
+                    callback: () => removeOption(option),
+                  },
+                ]}
               />
             </div>
           {/if}

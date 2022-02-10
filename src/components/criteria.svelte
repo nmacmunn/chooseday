@@ -7,6 +7,7 @@
   } from "../service/db";
   import type { Criterion } from "../types/data";
   import type { CriteriaState } from "../types/state";
+  import Alert from "./alert.svelte";
   import Create from "./create.svelte";
   import ListCard from "./list-card.svelte";
   import More from "./more.svelte";
@@ -51,10 +52,23 @@
     }
   }
 
-  $: byWeight = _.groupBy(state.context.userCriteria, "weight");
-  $: weights = _.keys(byWeight).map(Number).sort().reverse();
+  $: byWeight = _(state.context.userCriteria)
+    .groupBy("weight")
+    .values()
+    .orderBy("0.weight", "desc")
+    .value();
+
   let top: SortableList;
 </script>
+
+{#if state.context.userCriteria.length < 2}
+  <Alert>
+    <span uk-icon="info" class="uk-margin-right" />
+    Create at least {state.context.userCriteria.length
+      ? "one more criterion"
+      : "two criteria"}
+  </Alert>
+{/if}
 
 <Create
   label="Add criteria"
@@ -63,47 +77,67 @@
     addCriterion(state.context.decision.id, title, state.context.user)}
 />
 
+<h4 class="uk-text-light uk-heading-line">
+  <span class="uk-margin-left">Criteria</span>
+</h4>
+
 <h5 class="uk-text-light">
-  <span>Sort criteria from most to least important</span>
+  <span>Sort from most to least important</span>
 </h5>
 
-<div class="uk-text-muted uk-text-center uk-margin">
-  <b>Most</b> important
+<div
+  class="uk-dark uk-background-muted uk-text-center uk-padding-small"
+  style="margin-bottom: -10px"
+>
+  <i>Most important</i>
 </div>
-{#if state.context.userCriteria.length < 2}
-  <PlaceholderCard>
-    <span uk-icon="info" class="uk-margin-right" />
-    Create at least {state.context.userCriteria.length
-      ? "one more criterion"
-      : "two criteria"}
-  </PlaceholderCard>
-{/if}
-<SortableList bind:this={top}>
-  {#each weights as weight ({})}
-    <SortableItem>
-      <SortableList on:sorted={onSorted}>
-        {#each byWeight[weight] as criterion (criterion)}
-          <SortableItem data={criterion}>
-            <ListCard>
-              <svelte:fragment slot="left">
-                <span uk-icon="table" class="uk-margin-right" />
-                <span>{criterion.title}</span>
-              </svelte:fragment>
-              <svelte:fragment slot="right">
-                <More
-                  onDelete={() => removeCriterion(criterion)}
-                  onEdit={() => editTitle(criterion)}
-                />
-              </svelte:fragment>
-            </ListCard>
-          </SortableItem>
-        {/each}
-      </SortableList>
-    </SortableItem>
-  {/each}
-</SortableList>
-<div class="uk-text-muted uk-text-center uk-margin">
-  <b>Least</b> important
+<div
+  class="uk-padding uk-padding-remove-top uk-padding-remove-bottom"
+  style="background-image: linear-gradient(0, transparent, #f8f8f8)"
+>
+  <SortableList bind:this={top}>
+    {#if byWeight.length === 0}
+      <PlaceholderCard>No criteria yet</PlaceholderCard>
+    {/if}
+    {#each byWeight as criteria ({})}
+      <SortableItem>
+        <SortableList on:sorted={onSorted}>
+          {#each criteria as criterion (criterion)}
+            <SortableItem data={criterion}>
+              <ListCard>
+                <svelte:fragment slot="left">
+                  <span uk-icon="table" class="uk-margin-right" />
+                  <span>{criterion.title}</span>
+                </svelte:fragment>
+                <svelte:fragment slot="right">
+                  <More
+                    actions={[
+                      {
+                        title: "Edit",
+                        icon: "pencil",
+                        callback: () => editTitle(criterion),
+                      },
+                      {
+                        title: "Delete",
+                        icon: "trash",
+                        callback: () => removeCriterion(criterion),
+                      },
+                    ]}
+                  />
+                </svelte:fragment>
+              </ListCard>
+            </SortableItem>
+          {/each}
+        </SortableList>
+      </SortableItem>
+    {/each}
+  </SortableList>
+</div>
+<div
+  class="uk-text-muted uk-text-center uk-padding-small"
+  style="margin-top: -10px"
+>
+  <i>Least important</i>
 </div>
 
 <NextBack

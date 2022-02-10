@@ -35,28 +35,23 @@
   $: selectedIndex = state.context.userCriteria.indexOf(
     state.context.criterion
   );
-  $: optionTitles = _.chain(state.context.options)
+  $: optionTitles = _(state.context.options)
     .keyBy("id")
     .mapValues("title")
     .value();
-  $: all = _.chain(state.context.ratings)
+  $: byWeight = _(state.context.userRatings)
     .filter(_.matchesProperty("criterionId", state.context.criterion.id))
-    .orderBy("weight", "desc")
+    .groupBy("weight")
+    .values()
+    .orderBy("0.weight", "desc")
     .value();
-  $: byWeight = _.groupBy(all, "weight");
-  $: weights = _.keys(byWeight).map(Number).sort().reverse();
-  $: sorted = {
-    all,
-    byWeight,
-    weights,
-  };
 
   let next: { label: string; event: AppEvent };
-  $: if (selectedIndex + 1 < state.context.userCriteria.length) {
-    const criterion = state.context.userCriteria[selectedIndex + 1];
+  $: nextCriterion = state.context.userCriteria[selectedIndex + 1];
+  $: if (nextCriterion) {
     next = {
-      label: criterion.title,
-      event: { type: "CRITERION", criterion },
+      label: nextCriterion.title,
+      event: { type: "CRITERION", criterion: nextCriterion },
     };
   } else {
     next = {
@@ -66,11 +61,11 @@
   }
 
   let back: { label: string; event: AppEvent };
-  $: if (selectedIndex > 0) {
-    const criterion = state.context.userCriteria[selectedIndex - 1];
+  $: backCriterion = state.context.userCriteria[selectedIndex - 1];
+  $: if (backCriterion) {
     back = {
-      label: criterion.title,
-      event: { type: "CRITERION", criterion },
+      label: backCriterion.title,
+      event: { type: "CRITERION", criterion: backCriterion },
     };
   } else {
     back = {
@@ -97,31 +92,46 @@
 </ul>
 
 <h5 class="uk-text-light">
-  <span>Sort options by</span>
+  <span>Sort by</span>
   <span class="uk-background-muted title">{state.context.criterion.title}</span>
   <span>from best to worst</span>
 </h5>
 
-<div class="uk-text-muted uk-text-center uk-margin"><b>Best</b> option</div>
-<SortableList bind:this={top}>
-  {#each sorted.weights as weight, i ({})}
-    <SortableItem>
-      <SortableList on:sorted={onSorted}>
-        {#each sorted.byWeight[weight] as rating (rating)}
-          <SortableItem data={rating}>
-            <ListCard>
-              <svelte:fragment slot="left">
-                <span uk-icon="table" class="uk-margin-right" />
-                <span>{optionTitles[rating.optionId]}</span>
-              </svelte:fragment>
-            </ListCard>
-          </SortableItem>
-        {/each}
-      </SortableList>
-    </SortableItem>
-  {/each}
-</SortableList>
-<div class="uk-text-muted uk-text-center uk-margin"><b>Worst</b> option</div>
+<div
+  class="uk-dark uk-background-muted uk-text-center uk-padding-small"
+  style="margin-bottom: -10px"
+>
+  <i>Best option</i>
+</div>
+<div
+  class="uk-padding uk-padding-remove-top uk-padding-remove-bottom"
+  style="background-image: linear-gradient(0, transparent, #f8f8f8)"
+>
+  <SortableList bind:this={top}>
+    {#each byWeight as ratings ({})}
+      <SortableItem>
+        <SortableList on:sorted={onSorted}>
+          {#each ratings as rating (rating)}
+            <SortableItem data={rating}>
+              <ListCard>
+                <svelte:fragment slot="left">
+                  <span uk-icon="table" class="uk-margin-right" />
+                  <span>{optionTitles[rating.optionId]}</span>
+                </svelte:fragment>
+              </ListCard>
+            </SortableItem>
+          {/each}
+        </SortableList>
+      </SortableItem>
+    {/each}
+  </SortableList>
+</div>
+<div
+  class="uk-text-muted uk-text-center uk-padding-small"
+  style="margin-top: -10px"
+>
+  <i>Worst option</i>
+</div>
 
 <NextBack {back} {next} />
 

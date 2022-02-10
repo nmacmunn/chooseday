@@ -30,7 +30,7 @@ export class FakeDecision {
       this,
       {
         created: 0,
-        creator: { id: "userId" },
+        creator: new FakeUser(),
         collaborators: [],
         id: "decisionId",
         title: "decision title",
@@ -81,6 +81,7 @@ export class FakeUser {
       this,
       {
         id: "userId",
+        email: "user@example.com",
       },
       data
     );

@@ -1,3 +1,7 @@
+import { FakeUser } from "../helpers/fake";
+
+jest.unmock("../helpers/fake");
+
 const Collection = () => jest.requireMock("../../src/service/collection");
 const Firebase = () => jest.requireMock("@firebase/firestore");
 const Query = () => jest.requireMock("../../src/service/query");
@@ -93,7 +97,25 @@ describe("docs service", () => {
       expect(result).toEqual(Firebase().getDocs.mock.results[0].value);
     });
   });
-
+  describe("getDecisions", () => {
+    it("should query creator decisions", () => {
+      const user = new FakeUser();
+      runScript().getDecisions(user);
+      expect(Query().queryCreatorDecisions).toHaveBeenCalledWith(user);
+    });
+    it("should get docs with query", () => {
+      Query().queryCreatorDecisions.mockReturnValue({ query: "query" });
+      const user = new FakeUser();
+      runScript().getDecisions(user);
+      expect(Firebase().getDocs).toHaveBeenCalledWith({ query: "query" });
+    });
+    it("should return the result of getDocs", () => {
+      Firebase().getDocs.mockReturnValue([{ doc: "doc" }]);
+      const user = new FakeUser();
+      const result = runScript().getDecisions(user);
+      expect(result).toEqual([{ doc: "doc" }]);
+    });
+  });
   describe("getOptions", () => {
     it("should query options", () => {
       runScript().getOptions("decisionId");

@@ -1,3 +1,8 @@
+export interface Collaborator extends User {
+  active: boolean;
+  email: string;
+}
+
 export interface Criterion {
   decisionId: string;
   id: string;
@@ -9,7 +14,7 @@ export interface Criterion {
 export interface Decision {
   created: number;
   creator: User;
-  collaborators: string[];
+  collaborators: Collaborator[] | undefined;
   id: string;
   title: string;
 }

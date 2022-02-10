@@ -21,6 +21,7 @@ export function isDecisionLoadedContext(
   return (
     isDecisionLoadingContext(context) &&
     context.criteria !== undefined &&
+    context.decision !== undefined &&
     context.options !== undefined &&
     context.ratings !== undefined &&
     context.userCriteria !== undefined &&
@@ -31,7 +32,7 @@ export function isDecisionLoadedContext(
 export function isDecisionLoadingContext(
   context: AppContext
 ): context is DecisionLoadingContext {
-  return context.decision !== undefined && context.user !== undefined;
+  return context.decisionId !== undefined && context.user !== undefined;
 }
 
 export function isDecisionsLoadedContext(

@@ -2,8 +2,13 @@
   import { onDestroy, onMount } from "svelte";
   import UIkit from "uikit";
 
-  export let onEdit: () => void;
-  export let onDelete: () => void;
+  interface Action {
+    icon: string;
+    title: string;
+    callback: () => void;
+  }
+
+  export let actions: [Action, ...Action[]];
 
   let dropdownEl: HTMLDivElement;
   let dropdown: UIkit.UIkitDropdownElement;
@@ -22,26 +27,17 @@
 </a>
 <div bind:this={dropdownEl}>
   <ul class="uk-nav uk-dropdown-nav">
-    <li>
-      <a
-        href="edit"
-        title="edit"
-        on:click|preventDefault={() => onClick(onEdit)}
-      >
-        <span uk-icon="pencil" />
-        <span class="uk-margin-small-left">Edit</span>
-      </a>
-    </li>
-    <li>
-      <a
-        href="delete"
-        title="delete"
-        on:click|preventDefault={() => onClick(onDelete)}
-      >
-        <span uk-icon="trash" />
-        <span class="uk-margin-small-left">Delete</span>
-      </a>
-    </li>
+    {#each actions as action}
+      <li>
+        <a
+          href={action.title}
+          on:click|preventDefault={() => onClick(action.callback)}
+        >
+          <span uk-icon={action.icon} />
+          <span class="uk-margin-small-left">{action.title}</span>
+        </a>
+      </li>
+    {/each}
   </ul>
 </div>
 

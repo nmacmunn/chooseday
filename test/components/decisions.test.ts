@@ -91,7 +91,7 @@ describe("decisions component", () => {
         "my decision"
       );
     });
-    it("should transition to the creating state", async () => {
+    it("should transition to the loading state", async () => {
       const decision = new FakeDecision();
       Db().addDecision.mockResolvedValue(decision.id);
       harness.enter("decisionsLoaded");
@@ -99,14 +99,9 @@ describe("decisions component", () => {
       await harness.setCreateInput("my decision");
       await harness.submitCreateInput();
       expect(harness.state.value).toEqual({
-        auth: { signedIn: { decisions: "creating" } },
+        auth: { signedIn: { decision: "loading" } },
       });
     });
-  });
-  it("should render the open a decision heading", () => {
-    harness.enter("decisionsLoaded");
-    harness.render();
-    expect(harness.result.getByText("Open an existing decision")).toBeVisible();
   });
   describe("user has no decisions", () => {
     it("should render a placeholder", () => {
@@ -133,7 +128,7 @@ describe("decisions component", () => {
           "my decision"
         );
       });
-      it("should select the newly created decision", async () => {
+      it("should load the newly created decision", async () => {
         const decision = new FakeDecision();
         Db().addDecision.mockResolvedValue(decision.id);
         harness.enter("decisionsLoaded");
@@ -142,7 +137,7 @@ describe("decisions component", () => {
         await harness.setPromptInput("my decision");
         await harness.clickOkButton();
         expect(harness.state.value).toEqual({
-          auth: { signedIn: { decisions: "creating" } },
+          auth: { signedIn: { decision: "loading" } },
         });
       });
     });

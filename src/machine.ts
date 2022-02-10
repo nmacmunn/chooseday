@@ -27,7 +27,10 @@ const machine = createMachine<BaseContext, AppEvent, AppState>({
       },
       states: {
         signedIn: {
-          initial: "decisions",
+          initial: "route",
+          invoke: {
+            src: services.urlListener,
+          },
           states: {
             decisions: {
               initial: "loading",
@@ -38,21 +41,14 @@ const machine = createMachine<BaseContext, AppEvent, AppState>({
                 COLLABORATORDECISIONSLOADED: {
                   actions: actions.setCollaboratorDecisions,
                 },
-                CREATING: {
-                  actions: actions.setDecisionId,
-                  target: ".creating",
-                },
                 CREATORDECISIONSLOADED: {
                   actions: actions.setCreatorDecisions,
                 },
-                DECISION: {
-                  actions: actions.setDecision,
-                  target: "decision",
-                },
               },
               states: {
-                creating: {},
-                loaded: {},
+                loaded: {
+                  entry: actions.pushUrl,
+                },
                 loading: {
                   always: {
                     cond: guards.decisionsLoaded,
@@ -70,6 +66,9 @@ const machine = createMachine<BaseContext, AppEvent, AppState>({
                 CRITERIALOADED: {
                   actions: actions.setCriteria,
                 },
+                DECISIONLOADED: {
+                  actions: actions.setDecision,
+                },
                 OPTIONSLOADED: {
                   actions: actions.setOptions,
                 },
@@ -79,6 +78,7 @@ const machine = createMachine<BaseContext, AppEvent, AppState>({
               },
               states: {
                 loaded: {
+                  entry: actions.pushUrl,
                   initial: "options",
                   on: {
                     COLLABORATORS: {
@@ -121,11 +121,16 @@ const machine = createMachine<BaseContext, AppEvent, AppState>({
                 },
               },
             },
+            route: {},
           },
           on: {
             DECISIONS: {
-              target: ".decisions",
               actions: actions.clearDecision,
+              target: ".decisions",
+            },
+            LOAD: {
+              actions: actions.setDecisionId,
+              target: ".decision",
             },
           },
         },
@@ -162,16 +167,5 @@ export const state = readable(interpreter.state, (set) => {
     set(state);
   });
 });
-
-export const states = {
-  preAuth: "preAuth",
-  signingIn: { auth: "signingIn" },
-  decisionLoading: {
-    auth: { signedIn: { decision: "loading" } },
-  },
-  decisionsLoading: {
-    auth: { signedIn: { decisions: "loading" } },
-  },
-};
 
 export const { send } = interpreter;

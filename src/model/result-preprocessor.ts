@@ -97,7 +97,7 @@ export class ResultPreprocessor {
         return user;
       })
       .compact()
-      .map((user, i, { length }) => {
+      .map((user, _i, { length }) => {
         return {
           ...user,
           normalized: 1 / length,

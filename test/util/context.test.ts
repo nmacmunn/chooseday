@@ -18,6 +18,7 @@ describe("context util", () => {
     beforeEach(() => {
       context = {
         criteria: [],
+        decisionId: "decisionId",
         decision: new FakeDecision(),
         options: [new FakeOption(), new FakeOption()],
         ratings: [],
@@ -76,6 +77,7 @@ describe("context util", () => {
     beforeEach(() => {
       context = {
         criteria: [],
+        decisionId: "decisionId",
         decision: new FakeDecision(),
         options: [],
         ratings: [],
@@ -125,23 +127,25 @@ describe("context util", () => {
     });
   });
   describe("isDecisionLoadingContext", () => {
-    it("should be false if decision is undefined", () => {
-      const result = runScript().isDecisionLoadingContext({
-        user: {},
-      });
+    let context: AppContext;
+    beforeEach(() => {
+      context = {
+        decisionId: "decisionId",
+        user: new FakeUser(),
+      };
+    });
+    it("should be false if decisionId is undefined", () => {
+      context.decisionId = undefined;
+      const result = runScript().isDecisionLoadingContext(context);
       expect(result).toBe(false);
     });
     it("should be false if user is undefined", () => {
-      const result = runScript().isDecisionLoadingContext({
-        decision: {},
-      });
+      context.user = undefined;
+      const result = runScript().isDecisionLoadingContext(context);
       expect(result).toBe(false);
     });
     it("should be true", () => {
-      const result = runScript().isDecisionLoadingContext({
-        decision: {},
-        user: {},
-      });
+      const result = runScript().isDecisionLoadingContext(context);
       expect(result).toBe(true);
     });
   });
@@ -210,6 +214,7 @@ describe("context util", () => {
         criteria,
         criterion: criteria[0],
         decision: new FakeDecision(),
+        decisionId: "decisionId",
         options: [new FakeOption(), new FakeOption()],
         ratings,
         user: new FakeUser(),

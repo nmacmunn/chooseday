@@ -1,16 +1,12 @@
-import {
-  FakeCriterion,
-  FakeDecision,
-  FakeOption,
-  FakeRating,
-  FakeUser,
-} from "../helpers/fake";
+import { FakeCriterion, FakeRating, FakeUser } from "../helpers/fake";
 
 jest.unmock("lodash");
 jest.unmock("../helpers/fake");
 
-const Xstate = () => jest.requireMock("xstate");
+const History = () => jest.requireMock("../../src/util/history");
 const ResultUtil = () => jest.requireMock("../../src/util/result");
+const StateValue = () => jest.requireMock("../../src/util/state-value");
+const Xstate = () => jest.requireMock("xstate");
 const runScript = () => jest.requireActual("../../src/util/action");
 
 describe("actions", () => {
@@ -42,6 +38,34 @@ describe("actions", () => {
     it("should clear 'user'", () => {
       runScript();
       expect(Xstate().assign).toHaveBeenCalledWith({ user: undefined });
+    });
+  });
+  describe("pushUrl", () => {
+    it("should push /decisions if state matches decisionsLoaded", () => {
+      const context = {};
+      const event = {};
+      const meta = {
+        state: {
+          matches: (value) => value === StateValue().stateValue.decisionsLoaded,
+        },
+      };
+      runScript().pushUrl(context, event, meta);
+      expect(History().pushHistory).toHaveBeenCalledWith("/decisions");
+    });
+    it("should push /decision/decisionId if state matches decisionLoaded", () => {
+      const context = {
+        decisionId: "decisionId",
+      };
+      const event = {};
+      const meta = {
+        state: {
+          matches: (value) => value === StateValue().stateValue.decisionLoaded,
+        },
+      };
+      runScript().pushUrl(context, event, meta);
+      expect(History().pushHistory).toHaveBeenCalledWith(
+        "/decision/decisionId"
+      );
     });
   });
   describe("setCollaboratorDecisions", () => {

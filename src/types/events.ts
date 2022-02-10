@@ -3,14 +3,14 @@ import type { Criterion, Decision, Option, Rating, User } from "./data";
 export type AppEvent =
   | CollaboratorDecisionsLoadedEvent
   | CollaboratorsEvent
-  | CreatingEvent
   | CreatorDecisionsLoadedEvent
   | CriteriaEvent
   | CriteriaLoadedEvent
   | CriterionEvent
-  | DecisionEvent
+  | DecisionLoadedEvent
   | DecisionsEvent
   | ErrorEvent
+  | LoadEvent
   | OptionsEvent
   | OptionsLoadedEvent
   | RatingsEvent
@@ -27,11 +27,6 @@ export interface CollaboratorDecisionsLoadedEvent {
 
 export interface CollaboratorsEvent {
   type: "COLLABORATORS";
-}
-
-export interface CreatingEvent {
-  type: "CREATING";
-  decisionId: string;
 }
 
 export interface CreatorDecisionsLoadedEvent {
@@ -53,8 +48,8 @@ export interface CriterionEvent {
   criterion: Criterion;
 }
 
-export interface DecisionEvent {
-  type: "DECISION";
+export interface DecisionLoadedEvent {
+  type: "DECISIONLOADED";
   decision: Decision;
 }
 
@@ -65,6 +60,11 @@ export interface DecisionsEvent {
 export interface ErrorEvent {
   type: "ERROR";
   error: string;
+}
+
+export interface LoadEvent {
+  type: "LOAD";
+  decisionId: string;
 }
 
 export interface OptionsEvent {

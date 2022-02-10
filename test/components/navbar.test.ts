@@ -78,26 +78,29 @@ describe("navbar component", () => {
     });
     describe("clicking on the user link", () => {
       it("should render email if user has one", async () => {
-        harness.sendRedirectResult();
-        harness.sendSignIn(new FakeUser({ email: "user@example.com" }));
+        harness.enter("decisionsLoading");
+
         harness.render();
         await harness.clickUserLink();
         expect(harness.result.getByText("user@example.com")).toBeVisible();
       });
       it("should render 'Guest' if user does not have email", async () => {
-        harness.enter("decisionsLoading");
+        harness.sendRedirectResult();
+        harness.sendSignIn(new FakeUser({ email: undefined }));
         harness.render();
         await harness.clickUserLink();
         expect(harness.result.getByText("Guest")).toBeVisible();
       });
       it("should render the google link if user does not have email", async () => {
-        harness.enter("decisionsLoading");
+        harness.sendRedirectResult();
+        harness.sendSignIn(new FakeUser({ email: undefined }));
         harness.render();
         await harness.clickUserLink();
         expect(harness.linkToGoogleLink).toBeVisible();
       });
       it("should link to google when link is clicked", async () => {
-        harness.enter("decisionsLoading");
+        harness.sendRedirectResult();
+        harness.sendSignIn(new FakeUser({ email: undefined }));
         harness.render();
         await harness.clickUserLink();
         await harness.clickLinkToGoogle();

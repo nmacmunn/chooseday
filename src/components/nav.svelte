@@ -1,37 +1,45 @@
 <script lang="ts">
   import { send, state } from "../machine";
+  import { stateValue } from "../util/state-value";
+
+  const {
+    decisionsLoaded,
+    options,
+    criteria,
+    ratings,
+    collaborators,
+    results,
+  } = stateValue;
 
   const items = [
     {
       title: "Decisions",
-      stateValue: { auth: { signedIn: { decisions: "loaded" } } },
+      stateValue: decisionsLoaded,
       event: { type: "DECISIONS" },
     },
     {
       title: "Options",
-      stateValue: { auth: { signedIn: { decision: { loaded: "options" } } } },
+      stateValue: options,
       event: { type: "OPTIONS" },
     },
     {
       title: "Criteria",
-      stateValue: { auth: { signedIn: { decision: { loaded: "criteria" } } } },
+      stateValue: criteria,
       event: { type: "CRITERIA" },
     },
     {
       title: "Ratings",
-      stateValue: { auth: { signedIn: { decision: { loaded: "ratings" } } } },
+      stateValue: ratings,
       event: { type: "RATINGS" },
     },
     {
       title: "Collaborators",
-      stateValue: {
-        auth: { signedIn: { decision: { loaded: "collaborators" } } },
-      },
+      stateValue: collaborators,
       event: { type: "COLLABORATORS" },
     },
     {
       title: "Results",
-      stateValue: { auth: { signedIn: { decision: { loaded: "results" } } } },
+      stateValue: results,
       event: { type: "RESULTS" },
     },
   ] as const;

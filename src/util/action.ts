@@ -1,16 +1,19 @@
 import _ from "lodash";
+import type { ActionMeta } from "xstate";
 import { assign } from "xstate";
+import { pushHistory } from "./history";
+import { stateValue } from "./state-value";
 import type { BaseContext } from "../types/context";
 import type {
   AppEvent,
   CollaboratorDecisionsLoadedEvent,
-  CreatingEvent,
   CreatorDecisionsLoadedEvent,
   CriteriaLoadedEvent,
   CriterionEvent,
-  DecisionEvent,
+  DecisionLoadedEvent,
   DecisionsEvent,
   ErrorEvent,
+  LoadEvent,
   OptionsLoadedEvent,
   RatingsLoadedEvent,
   SigninEvent,
@@ -47,6 +50,18 @@ export const clearDecision = assign<BaseContext, DecisionsEvent>({
 export const clearUser = assign<BaseContext, SignoutEvent>({
   user: undefined,
 });
+
+export function pushUrl<T extends BaseContext, U extends AppEvent>(
+  context: T,
+  _e: U,
+  meta: ActionMeta<T, U>
+) {
+  if (meta.state.matches(stateValue.decisionsLoaded)) {
+    pushHistory("/decisions");
+  } else if (meta.state.matches(stateValue.decisionLoaded)) {
+    pushHistory("/decision/" + context.decisionId);
+  }
+}
 
 export const setCollaboratorDecisions = assign<
   BaseContext,
@@ -90,11 +105,11 @@ export const setCriterion = assign<BaseContext, CriterionEvent>({
   criterion: pick("criterion"),
 });
 
-export const setDecision = assign<BaseContext, DecisionEvent>({
+export const setDecision = assign<BaseContext, DecisionLoadedEvent>({
   decision: pick("decision"),
 });
 
-export const setDecisionId = assign<BaseContext, CreatingEvent>({
+export const setDecisionId = assign<BaseContext, LoadEvent>({
   decisionId: pick("decisionId"),
 });
 

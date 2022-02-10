@@ -1,7 +1,22 @@
 import type {
+  CollaboratorsStateValue,
+  CriteriaStateValue,
+  DecisionLoadedStateValue,
+  DecisionLoadingStateValue,
+  DecisionsLoadedStateValue,
+  DecisionsLoadingStateValue,
+  OptionsStateValue,
+  RatingsStateValue,
+  ResultsStateValue,
+  RouteStateValue,
+  SignedOutStateValue,
+  SigningInStateValue,
+} from "../util/state-value";
+
+import type {
   CollaboratorsContext,
-  CreatingContext,
   CriteriaContext,
+  DecisionLoadedContext,
   DecisionLoadingContext,
   DecisionsLoadedContext,
   DecisionsLoadingContext,
@@ -10,14 +25,15 @@ import type {
   PreAuthContext,
   RatingsContext,
   ResultsContext,
+  RouteContext,
   SignedOutContext,
   SigningInContext,
 } from "./context";
 
 export type AppState =
   | CollaboratorsState
-  | CreatingState
   | CriteriaState
+  | DecisionLoadedState
   | DecisionLoadingState
   | DecisionsLoadedState
   | DecisionsLoadingState
@@ -26,36 +42,37 @@ export type AppState =
   | PreAuthState
   | RatingsState
   | ResultsState
+  | RouteState
   | SignedOutState
   | SigningInState;
 
 export interface CollaboratorsState {
-  value: { auth: { signedIn: { decision: { loaded: "collaborators" } } } };
+  value: CollaboratorsStateValue;
   context: CollaboratorsContext;
 }
 
-export interface CreatingState {
-  value: { auth: { signedIn: { decisions: "creating" } } };
-  context: CreatingContext;
-}
-
 export interface CriteriaState {
-  value: { auth: { signedIn: { decision: { loaded: "criteria" } } } };
+  value: CriteriaStateValue;
   context: CriteriaContext;
 }
 
+export interface DecisionLoadedState {
+  value: DecisionLoadedStateValue;
+  context: DecisionLoadedContext;
+}
+
 export interface DecisionLoadingState {
-  value: { auth: { signedIn: { decision: "loading" } } };
+  value: DecisionLoadingStateValue;
   context: DecisionLoadingContext;
 }
 
 export interface DecisionsLoadedState {
-  value: { auth: { signedIn: { decisions: "loaded" } } };
+  value: DecisionsLoadedStateValue;
   context: DecisionsLoadedContext;
 }
 
 export interface DecisionsLoadingState {
-  value: { auth: { signedIn: { decisions: "loading" } } };
+  value: DecisionsLoadingStateValue;
   context: DecisionsLoadingContext;
 }
 
@@ -65,7 +82,7 @@ export interface ErrorState {
 }
 
 export interface OptionsState {
-  value: { auth: { signedIn: { decision: { loaded: "options" } } } };
+  value: OptionsStateValue;
   context: OptionsContext;
 }
 
@@ -75,21 +92,26 @@ export interface PreAuthState {
 }
 
 export interface RatingsState {
-  value: { auth: { signedIn: { decision: { loaded: "ratings" } } } };
+  value: RatingsStateValue;
   context: RatingsContext;
 }
 
 export interface ResultsState {
-  value: { auth: { signedIn: { decision: { loaded: "results" } } } };
+  value: ResultsStateValue;
   context: ResultsContext;
 }
 
+export interface RouteState {
+  value: RouteStateValue;
+  context: RouteContext;
+}
+
 export interface SigningInState {
-  value: { auth: "signingIn" };
+  value: SigningInStateValue;
   context: SigningInContext;
 }
 
 export interface SignedOutState {
-  value: { auth: "signedOut" };
+  value: SignedOutStateValue;
   context: SignedOutContext;
 }

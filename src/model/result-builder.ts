@@ -32,10 +32,10 @@ export class ResultBuilder {
   private readyRatingsByCriterion: Record<CriterionId, RatingReady[]>;
 
   constructor(
-    private options: Option[],
+    options: Option[],
     private readyUsers: UserReady[],
     private readyCriteria: CriterionReady[],
-    private readyRatings: RatingReady[]
+    readyRatings: RatingReady[]
   ) {
     this.optionsById = _.keyBy(options, "id");
     this.readyRatingsByCriterion = _.groupBy(readyRatings, "criterionId");

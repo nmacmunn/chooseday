@@ -6,7 +6,12 @@ import {
   optionCollection,
   ratingCollection,
 } from "./collection";
-import { queryCriteria, queryOptions, queryRatings } from "./query";
+import {
+  queryCreatorDecisions,
+  queryCriteria,
+  queryOptions,
+  queryRatings,
+} from "./query";
 
 export function criterionRef(id?: string) {
   if (id) {
@@ -41,6 +46,14 @@ export function ratingRef(id?: string) {
  */
 export function getCriteria(decisionId: string, user?: User) {
   const query = queryCriteria(decisionId, user);
+  return getDocs(query);
+}
+
+/**
+ * Get decisions from firestore by creator
+ */
+export function getDecisions(user: User) {
+  const query = queryCreatorDecisions(user);
   return getDocs(query);
 }
 

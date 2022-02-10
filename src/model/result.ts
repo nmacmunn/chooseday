@@ -32,7 +32,7 @@ export class Result {
   constructor(
     private user: User,
     private decision: Decision,
-    private criterionResults: CriterionResult[],
+    criterionResults: CriterionResult[],
     private userResults: UserResult[],
     private optionResults: OptionResult<OverallScore>[]
   ) {

@@ -111,13 +111,13 @@ describe("ratings component", () => {
       harness.state.context.criteria[0]
     );
   });
-  it("should render 'Sort options by CRITERION from best to worst'", () => {
+  it("should render 'Sort by CRITERION from best to worst'", () => {
     harness.enter("collaborators");
     harness.sendRatings();
     harness.render();
     expect(
       harness.result.getByText(
-        textContentMatcher("Sort options by First Criterion from best to worst")
+        textContentMatcher("Sort by First Criterion from best to worst")
       )
     ).toBeVisible();
   });
@@ -125,9 +125,7 @@ describe("ratings component", () => {
     harness.enter("collaborators");
     harness.sendRatings();
     harness.render();
-    expect(
-      harness.result.getByText(textContentMatcher("Best option"))
-    ).toBeVisible();
+    expect(harness.result.getByText("Best option")).toBeVisible();
   });
   it("should render each option", () => {
     harness.enter("collaborators");
@@ -140,9 +138,7 @@ describe("ratings component", () => {
     harness.enter("collaborators");
     harness.sendRatings();
     harness.render();
-    expect(
-      harness.result.getByText(textContentMatcher("Worst option"))
-    ).toBeVisible();
+    expect(harness.result.getByText("Worst option")).toBeVisible();
   });
   it("should render Criteria button when rating first criteria", () => {
     harness.enter("collaborators");

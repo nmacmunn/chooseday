@@ -7,11 +7,18 @@ describe("query service", () => {
   beforeEach(() => jest.resetModules());
   describe("queryCollaboratorDecisions", () => {
     it("should query decisions by collaborator", () => {
-      runScript().queryCollaboratorDecisions({ email: "user@example.com" });
+      runScript().queryCollaboratorDecisions({
+        email: "user@example.com",
+        id: "userId",
+      });
       expect(Firestore().where).toHaveBeenCalledWith(
         "collaborators",
         "array-contains",
-        "user@example.com"
+        {
+          active: true,
+          email: "user@example.com",
+          id: "userId",
+        }
       );
       expect(Firestore().query).toHaveBeenCalledWith(
         Collection().decisionCollection,

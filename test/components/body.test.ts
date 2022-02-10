@@ -1,7 +1,6 @@
 import "@testing-library/jest-dom";
-import { render, RenderResult } from "@testing-library/svelte";
+import { act, render, RenderResult } from "@testing-library/svelte";
 import { MachineHarness } from "../helpers/machine";
-import { textContentMatcher } from "../helpers/matchers";
 
 jest.disableAutomock();
 jest.mock("chart.js/auto");
@@ -33,6 +32,11 @@ describe("Body", () => {
     harness.render();
     expect(harness.loading).toBeVisible();
   });
+  it("should render the loading spinner while routing", async () => {
+    harness.enter("route");
+    harness.render();
+    expect(harness.loading).toBeVisible();
+  });
   it("should render the loading spinner while loading decisions", async () => {
     harness.enter("decisionsLoading");
     harness.render();
@@ -53,47 +57,31 @@ describe("Body", () => {
     harness.render();
     expect(harness.result.getByText("Create a decision")).toBeVisible();
   });
-  it("should render the creating spinner while creating a decision", () => {
-    harness.enter("creating");
-    harness.render();
-    expect(harness.result.getByText("Creating your decision, please wait..."))
-      .toBeVisible;
-  });
   it("should render the options view", async () => {
     harness.enter("options");
     harness.render();
-    expect(
-      harness.result.getByText(textContentMatcher("decision title options"))
-    ).toBeVisible();
+    expect(harness.result.getByText("Create an option")).toBeVisible();
   });
   it("should render the criteria view", async () => {
     harness.enter("criteria");
     harness.render();
-    expect(
-      harness.result.getByText(textContentMatcher("decision title criteria"))
-    ).toBeVisible();
+    expect(harness.result.getByText("Add criteria")).toBeVisible();
   });
   it("should render the ratings view", async () => {
     harness.enter("ratings");
     harness.render();
-    expect(
-      harness.result.getByText(textContentMatcher("decision title ratings"))
-    ).toBeVisible();
+    expect(harness.result.getByText("Sort by")).toBeVisible();
   });
   it("should render the collaborators view", async () => {
     harness.enter("collaborators");
     harness.render();
     expect(
-      harness.result.getByText(
-        textContentMatcher("decision title collaborators")
-      )
+      harness.result.getByText("Share this link to invite collaborators")
     ).toBeVisible();
   });
   it("should render the results view", async () => {
     harness.enter("results");
     harness.render();
-    expect(
-      harness.result.getByText(textContentMatcher("decision title results"))
-    ).toBeVisible();
+    expect(harness.result.getByText("Best overall")).toBeVisible();
   });
 });

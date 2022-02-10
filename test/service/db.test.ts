@@ -18,6 +18,40 @@ const runScript = () => jest.requireActual("../../src/service/db");
 
 describe("db service", () => {
   beforeEach(() => jest.resetModules());
+  describe("addCollaborator", () => {
+    it("should do nothing if collaborators are not enabled", () => {
+      runScript().addCollaborator(
+        new FakeDecision({ collaborators: undefined }),
+        new FakeUser()
+      );
+      expect(Firestore().updateDoc).not.toHaveBeenCalled();
+    });
+    it("should do nothing if user is already a collaborator", () => {
+      const user = new FakeUser();
+      const decision = new FakeDecision();
+      decision.collaborators = [{ active: true, email: "", id: "userId" }];
+      runScript().addCollaborator(decision, user);
+      expect(Firestore().updateDoc).not.toHaveBeenCalled();
+    });
+    it("should get the decision ref", () => {
+      const user = new FakeUser();
+      const decision = new FakeDecision();
+      runScript().addCollaborator(decision, user);
+      expect(Docs().decisionRef).toHaveBeenCalledWith("decisionId");
+    });
+    it("should update the decision", () => {
+      Docs().decisionRef.mockReturnValue({});
+      const user = new FakeUser();
+      const decision = new FakeDecision();
+      runScript().addCollaborator(decision, user);
+      expect(Firestore().updateDoc).toHaveBeenCalledWith(
+        {},
+        {
+          collaborators: [{ ...user, active: true }],
+        }
+      );
+    });
+  });
   describe("addCriterion", () => {
     it("should get options", async () => {
       await runScript().addCriterion("decisionId", "criteria", {
@@ -128,9 +162,9 @@ describe("db service", () => {
       expect(Firestore().setDoc).toHaveBeenCalledWith(
         { id: "decisionId" },
         {
-          collaborators: [],
+          collaborators: undefined,
           created: 1234567890,
-          creator: { id: "userId" },
+          creator: { id: "userId", email: "user@example.com" },
           title: "decision title",
         }
       );
@@ -204,6 +238,63 @@ describe("db service", () => {
           optionId: "option1",
           user: { id: "user2" },
           weight: 1,
+        }
+      );
+    });
+  });
+  describe("enableCollaborators", () => {
+    it("should do nothing if already enabled", () => {
+      const decision = new FakeDecision();
+      runScript().enableCollaborators(decision);
+      expect(Firestore().updateDoc).not.toHaveBeenCalled();
+    });
+    it("should get the decision ref", () => {
+      const decision = new FakeDecision({ collaborators: undefined });
+      runScript().enableCollaborators(decision);
+      expect(Docs().decisionRef).toHaveBeenCalledWith("decisionId");
+    });
+    it("should update the decision", () => {
+      Docs().decisionRef.mockReturnValue({});
+      const decision = new FakeDecision({ collaborators: undefined });
+      runScript().enableCollaborators(decision);
+      expect(Firestore().updateDoc).toHaveBeenCalledWith(
+        {},
+        {
+          collaborators: [],
+        }
+      );
+    });
+  });
+  describe("removeCollaborator", () => {
+    it("should do nothing if collaborators are disabled", () => {
+      const decision = new FakeDecision({ collaborators: undefined });
+      const user = new FakeUser();
+      runScript().removeCollaborator(decision, user);
+      expect(Firestore().updateDoc).not.toHaveBeenCalled();
+    });
+    it("should do nothing if user is not a collaborator", () => {
+      const decision = new FakeDecision();
+      const user = new FakeUser();
+      runScript().removeCollaborator(decision, user);
+      expect(Firestore().updateDoc).not.toHaveBeenCalled();
+    });
+    it("should get the decision ref", () => {
+      const decision = new FakeDecision();
+      const user = new FakeUser();
+      decision.collaborators = [{ id: "userId", email: "", active: true }];
+      runScript().removeCollaborator(decision, user);
+      expect(Docs().decisionRef).toHaveBeenCalledWith("decisionId");
+    });
+    it("should update the decision", () => {
+      Docs().decisionRef.mockReturnValue({});
+      const decision = new FakeDecision();
+      const user = new FakeUser();
+      decision.collaborators = [{ id: "userId", email: "", active: true }];
+      runScript().removeCollaborator(decision, user);
+      expect(Firestore().updateDoc).toHaveBeenCalledWith(
+        {},
+        {
+          collaborators: [{ id: "userId", email: "", active: false }],
         }
       );
     });
@@ -594,6 +685,40 @@ describe("db service", () => {
       expect(result).toBe(Firestore().onSnapshot.mock.results[0].value);
     });
   });
+  describe("subscribeDecision", () => {
+    it("should get a decision reference", () => {
+      runScript().subscribeDecision("decisionId", () => {});
+      expect(Docs().decisionRef).toHaveBeenCalledWith("decisionId");
+    });
+    it("should subscribe to snapshot updates", () => {
+      Docs().decisionRef.mockReturnValue({});
+      runScript().subscribeDecision("decisionId", () => {});
+      expect(Firestore().onSnapshot).toHaveBeenCalledWith(
+        {},
+        expect.any(Function)
+      );
+    });
+    it("should invoke the callback with undefined if the specified decision doesn't exist", (done) => {
+      runScript().subscribeDecision("decisionId", (decision) => {
+        expect(decision).toBeUndefined();
+        done();
+      });
+      const [, listener] = Firestore().onSnapshot.mock.calls[0];
+      listener({ exists: () => false });
+    });
+    it("should invoke the callback with a decision", (done) => {
+      FirestoreUtil().mergeId.mockImplementation(({ data, id }) => ({
+        id,
+        ...data(),
+      }));
+      runScript().subscribeDecision("decisionId", (decision) => {
+        expect(decision).toEqual({ id: "decisionId" });
+        done();
+      });
+      const [, listener] = Firestore().onSnapshot.mock.calls[0];
+      listener({ exists: () => true, data: () => {}, id: "decisionId" });
+    });
+  });
   describe("subscribeOptions", () => {
     it("should query options", () => {
       runScript().subscribeOptions("decisionId", () => {});
@@ -694,6 +819,35 @@ describe("db service", () => {
       expect(result).toBe(Firestore().onSnapshot.mock.results[0].value);
     });
   });
+  describe("updateCreator", () => {
+    it("should get the user's decision", () => {
+      const user = new FakeUser();
+      runScript().updateCreator(user);
+      expect(Docs().getDecisions).toHaveBeenCalledWith(user);
+    });
+    it("should run a transaction", async () => {
+      const user = new FakeUser();
+      await runScript().updateCreator(user);
+      expect(Firestore().runTransaction).toHaveBeenCalledWith(
+        Collection().firestore,
+        expect.any(Function)
+      );
+    });
+    it("should update each decision creator", async () => {
+      Docs().getDecisions.mockReturnValue([{ ref: "ref1" }, { ref: "ref2" }]);
+      const user = new FakeUser();
+      await runScript().updateCreator(user);
+      const updateFunction = Firestore().runTransaction.mock.calls[0][1];
+      const transaction = new FakeTransaction();
+      updateFunction(transaction);
+      expect(transaction.update).toHaveBeenCalledWith("ref1", {
+        creator: user,
+      });
+      expect(transaction.update).toHaveBeenCalledWith("ref2", {
+        creator: user,
+      });
+    });
+  });
   describe("updateCriterion", () => {
     it("should update the title and weight of the specified criterion", () => {
       const criterion = new FakeCriterion();
@@ -711,7 +865,9 @@ describe("db service", () => {
   describe("updateDecision", () => {
     it("should update the collaborators and title of the specified decision", () => {
       const decision = new FakeDecision();
-      const collaborators = (decision.collaborators = ["friend@example.com"]);
+      const collaborators = (decision.collaborators = [
+        { active: true, email: "friend@example.com", id: "friendId" },
+      ]);
       const title = (decision.title = "New title");
       runScript().updateDecision(decision);
       expect(Docs().decisionRef).toHaveBeenCalledWith("decisionId");

@@ -34,7 +34,10 @@ describe("machine", () => {
           },
           states: {
             signedIn: {
-              initial: "decisions",
+              initial: "route",
+              invoke: {
+                src: Services().urlListener,
+              },
               states: {
                 decisions: {
                   initial: "loading",
@@ -45,21 +48,14 @@ describe("machine", () => {
                     COLLABORATORDECISIONSLOADED: {
                       actions: Actions().setCollaboratorDecisions,
                     },
-                    CREATING: {
-                      actions: Actions().setDecisionId,
-                      target: ".creating",
-                    },
                     CREATORDECISIONSLOADED: {
                       actions: Actions().setCreatorDecisions,
                     },
-                    DECISION: {
-                      actions: Actions().setDecision,
-                      target: "decision",
-                    },
                   },
                   states: {
-                    creating: {},
-                    loaded: {},
+                    loaded: {
+                      entry: Actions().pushUrl,
+                    },
                     loading: {
                       always: {
                         cond: Guards().decisionsLoaded,
@@ -77,6 +73,9 @@ describe("machine", () => {
                     CRITERIALOADED: {
                       actions: Actions().setCriteria,
                     },
+                    DECISIONLOADED: {
+                      actions: Actions().setDecision,
+                    },
                     OPTIONSLOADED: {
                       actions: Actions().setOptions,
                     },
@@ -86,6 +85,7 @@ describe("machine", () => {
                   },
                   states: {
                     loaded: {
+                      entry: Actions().pushUrl,
                       initial: "options",
                       on: {
                         COLLABORATORS: {
@@ -128,11 +128,16 @@ describe("machine", () => {
                     },
                   },
                 },
+                route: {},
               },
               on: {
                 DECISIONS: {
-                  target: ".decisions",
                   actions: Actions().clearDecision,
+                  target: ".decisions",
+                },
+                LOAD: {
+                  actions: Actions().setDecisionId,
+                  target: ".decision",
                 },
               },
             },

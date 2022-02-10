@@ -31,19 +31,15 @@ export interface BaseContext {
   userRatings?: Rating[];
 }
 
-export interface CollaboratorsContext extends DecisionLoadingContext {}
+export interface CollaboratorsContext extends RatingsContext {}
 
 export interface CriteriaContext extends OptionsContext {
   options: [Option, Option, ...Option[]];
 }
 
-export interface CreatingContext extends SignedInContext {
-  creatorDecisions: Decision[];
-  decisionId: string;
-}
-
 export interface DecisionLoadedContext extends DecisionLoadingContext {
   criteria: Criterion[];
+  decision: Decision;
   options: Option[];
   ratings: Rating[];
   result: Result;
@@ -52,7 +48,7 @@ export interface DecisionLoadedContext extends DecisionLoadingContext {
 }
 
 export interface DecisionLoadingContext extends SignedInContext {
-  decision: Decision;
+  decisionId: string;
 }
 
 export interface DecisionsLoadedContext extends DecisionsLoadingContext {
@@ -79,6 +75,8 @@ export interface RatingsContext extends CriteriaContext {
 }
 
 export interface ResultsContext extends RatingsContext {}
+
+export interface RouteContext extends SignedInContext {}
 
 export interface SignedInContext extends BaseContext {
   user: User;

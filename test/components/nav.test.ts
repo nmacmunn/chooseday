@@ -67,11 +67,11 @@ describe("nav component", () => {
       expect(harness.decisions.parentElement).toHaveClass("uk-active");
     });
     it("should transition to decisions on click", async () => {
-      harness.enter("decisionLoading");
+      harness.enter("route");
       harness.render();
       await harness.clickDecisions();
       expect(harness.state.value).toEqual({
-        auth: { signedIn: { decisions: "loaded" } },
+        auth: { signedIn: { decisions: "loading" } },
       });
     });
   });

@@ -6,9 +6,13 @@ jest.disableAutomock();
 const More = () => require("../../src/components/more");
 
 class Harness {
+  actions = [
+    { icon: "pencil", title: "Edit", callback: jest.fn() },
+    { icon: "trash", title: "Delete", callback: jest.fn() },
+  ];
   result: RenderResult;
-  render(options: any) {
-    this.result = render(More(), options);
+  render() {
+    this.result = render(More(), { actions: this.actions });
   }
   get deleteButton() {
     return this.result.getByText("Delete");
@@ -37,49 +41,37 @@ describe("more component", () => {
     harness = new Harness();
   });
   it.skip("should hide the dropdown initially", () => {
-    const onEdit = jest.fn();
-    const onDelete = jest.fn();
-    harness.render({ onDelete, onEdit });
+    harness.render();
     expect(harness.deleteButton).not.toBeVisible();
     expect(harness.editButton).not.toBeVisible();
   });
   it("should show a dropdown on click", async () => {
-    const onEdit = jest.fn();
-    const onDelete = jest.fn();
-    harness.render({ onDelete, onEdit });
+    harness.render();
     await harness.clickMore();
     expect(harness.deleteButton).toBeVisible();
     expect(harness.editButton).toBeVisible();
   });
   it("should call onEdit when edit is clicked", async () => {
-    const onEdit = jest.fn();
-    const onDelete = jest.fn();
-    harness.render({ onDelete, onEdit });
+    harness.render();
     await harness.clickMore();
     await harness.clickEdit();
-    expect(onEdit).toHaveBeenCalled();
+    expect(harness.actions[0].callback).toHaveBeenCalled();
   });
   it.skip("should hide the dropdown when edit is clicked", async () => {
-    const onEdit = jest.fn();
-    const onDelete = jest.fn();
-    harness.render({ onDelete, onEdit });
+    harness.render();
     await harness.clickMore();
     await harness.clickEdit();
     expect(harness.deleteButton).not.toBeVisible();
     expect(harness.editButton).not.toBeVisible();
   });
   it("should call onDelete when delete is clicked", async () => {
-    const onEdit = jest.fn();
-    const onDelete = jest.fn();
-    harness.render({ onDelete, onEdit });
+    harness.render();
     await harness.clickMore();
     await harness.clickDelete();
-    expect(onDelete).toHaveBeenCalled();
+    expect(harness.actions[1].callback).toHaveBeenCalled();
   });
   it.skip("should hide the dropdown when delete is clicked", async () => {
-    const onEdit = jest.fn();
-    const onDelete = jest.fn();
-    harness.render({ onDelete, onEdit });
+    harness.render();
     await harness.clickMore();
     await harness.clickDelete();
     expect(harness.deleteButton).not.toBeVisible();

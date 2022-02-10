@@ -1,4 +1,4 @@
-import { AppContext, CriteriaContext } from "../../src/types/context";
+import { AppContext } from "../../src/types/context";
 import {
   FakeCriterion,
   FakeDecision,
@@ -59,6 +59,7 @@ describe("guard util", () => {
       context = {
         criteria,
         decision: new FakeDecision(),
+        decisionId: "decisionId",
         options: [new FakeOption(), new FakeOption()],
         ratings: [],
         user: new FakeUser(),

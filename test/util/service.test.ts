@@ -2,6 +2,7 @@ import { FakeDecision, FakeUser } from "../helpers/fake";
 jest.unmock("../helpers/fake");
 
 const Auth = () => jest.requireMock("../../src/service/auth");
+const History = () => jest.requireMock("../../src/util/history");
 const User = () => jest.requireMock("../../src/util/user");
 const Context = () => jest.requireMock("../../src/util/context");
 const Db = () => jest.requireMock("../../src/service/db");
@@ -27,25 +28,180 @@ describe("service util", () => {
           error: "Failed to load decision",
         });
       });
+      it("should subscribe to the decision", () => {
+        Context().isDecisionLoadingContext.mockReturnValue(true);
+        const context = {
+          decisionId: "decisionId",
+        };
+        const callbackHandler = runScript().decisionListener(context);
+        const send = jest.fn();
+        callbackHandler(send);
+        expect(Db().subscribeDecision).toHaveBeenCalledWith(
+          "decisionId",
+          expect.any(Function)
+        );
+      });
+      it("should send ERROR if the decision is undefined", () => {
+        Context().isDecisionLoadingContext.mockReturnValue(true);
+        const context = {
+          decisionId: "decisionId",
+        };
+        const callbackHandler = runScript().decisionListener(context);
+        const send = jest.fn();
+        callbackHandler(send);
+        const [, callback] = Db().subscribeDecision.mock.calls[0];
+        callback(undefined);
+        expect(send).toHaveBeenCalledWith({
+          type: "ERROR",
+          error: "We couldn't find that decision",
+        });
+      });
+      it("should send DECISIONLOADED if it was created by the user", () => {
+        Context().isDecisionLoadingContext.mockReturnValue(true);
+        const context = {
+          decisionId: "decisionId",
+          user: new FakeUser(),
+        };
+        const callbackHandler = runScript().decisionListener(context);
+        const send = jest.fn();
+        callbackHandler(send);
+        const [, callback] = Db().subscribeDecision.mock.calls[0];
+        const decision = new FakeDecision();
+        callback(decision);
+        expect(send).toHaveBeenCalledWith({
+          type: "DECISIONLOADED",
+          decision,
+        });
+      });
+      it("should send ERROR if the collaborators are not enabled", () => {
+        Context().isDecisionLoadingContext.mockReturnValue(true);
+        User().hasEmail.mockReturnValue(true);
+        const context = {
+          decisionId: "decisionId",
+          user: new FakeUser({ id: "friendId" }),
+        };
+        const callbackHandler = runScript().decisionListener(context);
+        const send = jest.fn();
+        callbackHandler(send);
+        const [, callback] = Db().subscribeDecision.mock.calls[0];
+        const decision = new FakeDecision({ collaborators: undefined });
+        callback(decision);
+        expect(send).toHaveBeenCalledWith({
+          type: "ERROR",
+          error: "We couldn't find that decision",
+        });
+      });
+      it("should send ERROR if user does not have an email", () => {
+        Context().isDecisionLoadingContext.mockReturnValue(true);
+        User().hasEmail.mockReturnValue(false);
+        const context = {
+          decisionId: "decisionId",
+          user: new FakeUser({ id: "friendId" }),
+        };
+        const callbackHandler = runScript().decisionListener(context);
+        const send = jest.fn();
+        callbackHandler(send);
+        const [, callback] = Db().subscribeDecision.mock.calls[0];
+        const decision = new FakeDecision();
+        callback(decision);
+        expect(send).toHaveBeenCalledWith({
+          type: "ERROR",
+          error: "You have to be signed in with Google to collaborate",
+        });
+      });
+      it("should add a new collaborator", () => {
+        Context().isDecisionLoadingContext.mockReturnValue(true);
+        User().hasEmail.mockReturnValue(true);
+        const user = new FakeUser({
+          id: "friendId",
+        });
+        const context = {
+          decisionId: "decisionId",
+          user,
+        };
+        const callbackHandler = runScript().decisionListener(context);
+        const send = jest.fn();
+        callbackHandler(send);
+        const [, callback] = Db().subscribeDecision.mock.calls[0];
+        const decision = new FakeDecision();
+        callback(decision);
+        expect(Db().addCollaborator).toHaveBeenCalledWith(decision, user);
+      });
+      it("should send DECISIONLOADED for new collaborators", () => {
+        Context().isDecisionLoadingContext.mockReturnValue(true);
+        User().hasEmail.mockReturnValue(true);
+        const context = {
+          decisionId: "decisionId",
+          user: new FakeUser({ id: "friendId" }),
+        };
+        const callbackHandler = runScript().decisionListener(context);
+        const send = jest.fn();
+        callbackHandler(send);
+        const [, callback] = Db().subscribeDecision.mock.calls[0];
+        const decision = new FakeDecision();
+        callback(decision);
+        expect(send).toHaveBeenCalledWith({
+          type: "DECISIONLOADED",
+          decision,
+        });
+      });
+      it("should send ERROR if user has been removed", () => {
+        Context().isDecisionLoadingContext.mockReturnValue(true);
+        User().hasEmail.mockReturnValue(true);
+        const context = {
+          decisionId: "decisionId",
+          user: new FakeUser({ id: "friendId" }),
+        };
+        const callbackHandler = runScript().decisionListener(context);
+        const send = jest.fn();
+        callbackHandler(send);
+        const [, callback] = Db().subscribeDecision.mock.calls[0];
+        const decision = new FakeDecision({
+          collaborators: [{ id: "friendId", email: "", active: false }],
+        });
+        callback(decision);
+        expect(send).toHaveBeenCalledWith({
+          type: "ERROR",
+          error: "We couldn't find that decision",
+        });
+      });
+      it("should send DECISIONLOADED for returning collaborators", () => {
+        Context().isDecisionLoadingContext.mockReturnValue(true);
+        User().hasEmail.mockReturnValue(true);
+        const context = {
+          decisionId: "decisionId",
+          user: new FakeUser({ id: "friendId" }),
+        };
+        const callbackHandler = runScript().decisionListener(context);
+        const send = jest.fn();
+        callbackHandler(send);
+        const [, callback] = Db().subscribeDecision.mock.calls[0];
+        const decision = new FakeDecision({
+          collaborators: [{ id: "friendId", email: "", active: true }],
+        });
+        callback(decision);
+        expect(send).toHaveBeenCalledWith({
+          type: "DECISIONLOADED",
+          decision,
+        });
+      });
       it("should subscribe to options", () => {
         Context().isDecisionLoadingContext.mockReturnValue(true);
-        const decision = new FakeDecision();
         const context = {
-          decision,
+          decisionId: "decisionId",
         };
         const callbackHandler = runScript().decisionListener(context);
         const send = jest.fn();
         callbackHandler(send);
         expect(Db().subscribeOptions).toHaveBeenCalledWith(
-          decision.id,
+          "decisionId",
           expect.any(Function)
         );
       });
       it("should send OPTIONSLOADED when options change", () => {
         Context().isDecisionLoadingContext.mockReturnValue(true);
-        const decision = new FakeDecision();
         const context = {
-          decision,
+          decisionId: "decisionId",
         };
         const callbackHandler = runScript().decisionListener(context);
         const send = jest.fn();
@@ -57,23 +213,21 @@ describe("service util", () => {
       });
       it("should subscribe to criteria", () => {
         Context().isDecisionLoadingContext.mockReturnValue(true);
-        const decision = new FakeDecision();
         const context = {
-          decision,
+          decisionId: "decisionId",
         };
         const callbackHandler = runScript().decisionListener(context);
         const send = jest.fn();
         callbackHandler(send);
         expect(Db().subscribeCriteria).toHaveBeenCalledWith(
-          decision.id,
+          "decisionId",
           expect.any(Function)
         );
       });
       it("should send CRITERIALOADED when criteria change", () => {
         Context().isDecisionLoadingContext.mockReturnValue(true);
-        const decision = new FakeDecision();
         const context = {
-          decision,
+          decisionId: "decisionId",
         };
         const callbackHandler = runScript().decisionListener(context);
         const send = jest.fn();
@@ -85,23 +239,21 @@ describe("service util", () => {
       });
       it("should subscribe to ratings", () => {
         Context().isDecisionLoadingContext.mockReturnValue(true);
-        const decision = new FakeDecision();
         const context = {
-          decision,
+          decisionId: "decisionId",
         };
         const callbackHandler = runScript().decisionListener(context);
         const send = jest.fn();
         callbackHandler(send);
         expect(Db().subscribeRatings).toHaveBeenCalledWith(
-          decision.id,
+          "decisionId",
           expect.any(Function)
         );
       });
       it("should send RATINGSLOADED when ratings change", () => {
         Context().isDecisionLoadingContext.mockReturnValue(true);
-        const decision = new FakeDecision();
         const context = {
-          decision,
+          decisionId: "decisionId",
         };
         const callbackHandler = runScript().decisionListener(context);
         const send = jest.fn();
@@ -113,9 +265,8 @@ describe("service util", () => {
       });
       it("should return an unsubscribe function", () => {
         Context().isDecisionLoadingContext.mockReturnValue(true);
-        const decision = new FakeDecision();
         const context = {
-          decision,
+          decisionId: "decisionId",
         };
         const callbackHandler = runScript().decisionListener(context);
         const send = jest.fn();
@@ -125,14 +276,14 @@ describe("service util", () => {
       describe("unsubscribe", () => {
         beforeEach(() => {
           Db().subscribeCriteria.mockReturnValue(jest.fn());
+          Db().subscribeDecision.mockReturnValue(jest.fn());
           Db().subscribeOptions.mockReturnValue(jest.fn());
           Db().subscribeRatings.mockReturnValue(jest.fn());
         });
         it("should unsubscribe from options changes", () => {
           Context().isDecisionLoadingContext.mockReturnValue(true);
-          const decision = new FakeDecision();
           const context = {
-            decision,
+            decisionId: "decisionId",
           };
           const callbackHandler = runScript().decisionListener(context);
           const send = jest.fn();
@@ -144,9 +295,8 @@ describe("service util", () => {
         });
         it("should unsubscribe from criteria changes", () => {
           Context().isDecisionLoadingContext.mockReturnValue(true);
-          const decision = new FakeDecision();
           const context = {
-            decision,
+            decisionId: "decisionId",
           };
           const callbackHandler = runScript().decisionListener(context);
           const send = jest.fn();
@@ -158,9 +308,8 @@ describe("service util", () => {
         });
         it("should unsubscribe from ratings changes", () => {
           Context().isDecisionLoadingContext.mockReturnValue(true);
-          const decision = new FakeDecision();
           const context = {
-            decision,
+            decisionId: "decisionId",
           };
           const callbackHandler = runScript().decisionListener(context);
           const send = jest.fn();
@@ -350,6 +499,23 @@ describe("service util", () => {
         callbackHandler(send);
         expect(Auth().getRedirectResult).toHaveBeenCalled();
       });
+      it("should update creator if operation was a link", (done) => {
+        Auth().getRedirectResult.mockResolvedValue({
+          operationType: "link",
+          user: {
+            email: "user@example.com",
+            uid: "userId",
+          },
+        });
+        const callbackHandler = runScript().redirectResultListener();
+        callbackHandler(() => {
+          expect(Db().updateCreator).toHaveBeenCalledWith({
+            email: "user@example.com",
+            id: "userId",
+          });
+          done();
+        });
+      });
       it("should send REDIRECTRESULT if getRedirectResult resolves", (done) => {
         Auth().getRedirectResult.mockResolvedValue(undefined);
         const callbackHandler = runScript().redirectResultListener();
@@ -366,6 +532,46 @@ describe("service util", () => {
           expect(event).toEqual({ type: "ERROR", error });
           done();
         });
+      });
+    });
+  });
+  describe("urlListener", () => {
+    it("should return a callback handler", () => {
+      const callbackHandler = runScript().urlListener();
+      expect(callbackHandler).toEqual(expect.any(Function));
+    });
+    describe("callbackHandler", () => {
+      it("should send LOAD if pathname is a decision url", () => {
+        jest
+          .spyOn(window, "location", "get")
+          .mockReturnValue({ pathname: "/decision/decisionId" } as Location);
+        const callbackHandler = runScript().urlListener();
+        const send = jest.fn();
+        callbackHandler(send);
+        expect(send).toHaveBeenCalledWith({
+          type: "LOAD",
+          decisionId: "decisionId",
+        });
+      });
+      it("should send DECISIONS otherwise", () => {
+        jest
+          .spyOn(window, "location", "get")
+          .mockReturnValue({ pathname: "/" } as Location);
+        const callbackHandler = runScript().urlListener();
+        const send = jest.fn();
+        callbackHandler(send);
+        expect(send).toHaveBeenCalledWith({ type: "DECISIONS" });
+      });
+      it("should return an unsubscribe function", () => {
+        const unsub = () => undefined;
+        History().historyListener.mockReturnValue(unsub);
+        const callbackHandler = runScript().urlListener();
+        const send = jest.fn();
+        const result = callbackHandler(send);
+        expect(History().historyListener).toHaveBeenCalledWith(
+          expect.any(Function)
+        );
+        expect(result).toBe(unsub);
       });
     });
   });

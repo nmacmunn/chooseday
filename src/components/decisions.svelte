@@ -19,7 +19,7 @@
       return;
     }
     const decisionId = addDecision(state.context.user, title);
-    send({ type: "CREATING", decisionId });
+    send({ type: "LOAD", decisionId });
   }
 
   function onCreateClick() {
@@ -52,9 +52,9 @@
   placeholder="Dinner, Vacation, etc."
 />
 
-<h5 class="uk-text-light uk-heading-line">
-  <span class="uk-margin-left">Open an existing decision</span>
-</h5>
+<h4 class="uk-text-light uk-heading-line">
+  <span class="uk-margin-left">Decisions</span>
+</h4>
 
 {#if creator.length === 0 && collaborator.length === 0}
   <div class="uk-card uk-placeholder uk-card-body uk-text-center">
@@ -67,19 +67,33 @@
   <ul class="uk-grid-small uk-child-width-1-1" uk-grid>
     {#each creator as decision (decision.id)}
       <li>
-        <ListCard onClick={() => send({ type: "DECISION", decision })}>
+        <ListCard
+          onClick={() => send({ type: "LOAD", decisionId: decision.id })}
+        >
           <div slot="left">{decision.title}</div>
           <More
             slot="right"
-            onDelete={() => removeDecision(decision.id)}
-            onEdit={() => onEditClick(decision)}
+            actions={[
+              {
+                title: "Edit",
+                icon: "pencil",
+                callback: () => onEditClick(decision),
+              },
+              {
+                title: "Delete",
+                icon: "trash",
+                callback: () => removeDecision(decision.id),
+              },
+            ]}
           />
         </ListCard>
       </li>
     {/each}
     {#each collaborator as decision (decision.id)}
       <li>
-        <ListCard onClick={() => send({ type: "DECISION", decision })}>
+        <ListCard
+          onClick={() => send({ type: "LOAD", decisionId: decision.id })}
+        >
           <div slot="left">{decision.title}</div>
           <span slot="right" class="uk-label">collaborator</span>
         </ListCard>
