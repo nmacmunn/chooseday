@@ -29,7 +29,9 @@ describe("db service", () => {
     it("should do nothing if user is already a collaborator", () => {
       const user = new FakeUser();
       const decision = new FakeDecision();
-      decision.collaborators = [{ active: true, email: "", id: "userId" }];
+      decision.collaborators = {
+        userId: { active: true, email: "", id: "userId" },
+      };
       runScript().addCollaborator(decision, user);
       expect(Firestore().updateDoc).not.toHaveBeenCalled();
     });
@@ -47,7 +49,9 @@ describe("db service", () => {
       expect(Firestore().updateDoc).toHaveBeenCalledWith(
         {},
         {
-          collaborators: [{ ...user, active: true }],
+          collaborators: {
+            [user.id]: { ...user, active: true },
+          },
         }
       );
     });
@@ -260,7 +264,7 @@ describe("db service", () => {
       expect(Firestore().updateDoc).toHaveBeenCalledWith(
         {},
         {
-          collaborators: [],
+          collaborators: {},
         }
       );
     });
@@ -281,7 +285,9 @@ describe("db service", () => {
     it("should get the decision ref", () => {
       const decision = new FakeDecision();
       const user = new FakeUser();
-      decision.collaborators = [{ id: "userId", email: "", active: true }];
+      decision.collaborators = {
+        userId: { id: "userId", email: "", active: true },
+      };
       runScript().removeCollaborator(decision, user);
       expect(Docs().decisionRef).toHaveBeenCalledWith("decisionId");
     });
@@ -289,12 +295,16 @@ describe("db service", () => {
       Docs().decisionRef.mockReturnValue({});
       const decision = new FakeDecision();
       const user = new FakeUser();
-      decision.collaborators = [{ id: "userId", email: "", active: true }];
+      decision.collaborators = {
+        userId: { id: "userId", email: "", active: true },
+      };
       runScript().removeCollaborator(decision, user);
       expect(Firestore().updateDoc).toHaveBeenCalledWith(
         {},
         {
-          collaborators: [{ id: "userId", email: "", active: false }],
+          collaborators: {
+            userId: { id: "userId", email: "", active: false },
+          },
         }
       );
     });
@@ -865,9 +875,9 @@ describe("db service", () => {
   describe("updateDecision", () => {
     it("should update the collaborators and title of the specified decision", () => {
       const decision = new FakeDecision();
-      const collaborators = (decision.collaborators = [
-        { active: true, email: "friend@example.com", id: "friendId" },
-      ]);
+      const collaborators = (decision.collaborators = {
+        friendId: { active: true, email: "friend@example.com", id: "friendId" },
+      });
       const title = (decision.title = "New title");
       runScript().updateDecision(decision);
       expect(Docs().decisionRef).toHaveBeenCalledWith("decisionId");

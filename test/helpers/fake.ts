@@ -31,7 +31,7 @@ export class FakeDecision {
       {
         created: 0,
         creator: new FakeUser(),
-        collaborators: [],
+        collaborators: {},
         id: "decisionId",
         title: "decision title",
       },

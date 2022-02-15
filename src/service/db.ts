@@ -31,13 +31,10 @@ export function addCollaborator(
   { collaborators, id }: Decision,
   collaborator: User & { email: string }
 ) {
-  if (
-    !collaborators ||
-    collaborators.find(({ id }) => id === collaborator.id)
-  ) {
+  if (!collaborators || collaborators[collaborator.id]) {
     return;
   }
-  collaborators.push({ ...collaborator, active: true });
+  collaborators[collaborator.id] = { ...collaborator, active: true };
   const ref = decisionRef(id);
   updateDoc(ref, { collaborators });
 }
@@ -125,7 +122,7 @@ export function enableCollaborators({ collaborators, id }: Decision) {
     return;
   }
   const ref = decisionRef(id);
-  updateDoc(ref, { collaborators: [] });
+  updateDoc(ref, { collaborators: {} });
 }
 
 export function removeCollaborator(
@@ -135,7 +132,7 @@ export function removeCollaborator(
   if (!collaborators) {
     return;
   }
-  const record = collaborators.find(({ id }) => id === collaborator.id);
+  const record = collaborators[collaborator.id];
   if (!record) {
     return;
   }

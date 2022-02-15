@@ -43,9 +43,7 @@ export function decisionListener(context: AppContext) {
         send({ type: "ERROR", error: noEmail });
         return;
       }
-      const collaborator = decision.collaborators.find(
-        ({ id }) => id === user.id
-      );
+      const collaborator = decision.collaborators[user.id];
       if (!collaborator) {
         addCollaborator(decision, user);
         send({ type: "DECISIONLOADED", decision });

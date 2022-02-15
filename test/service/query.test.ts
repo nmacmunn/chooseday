@@ -12,13 +12,9 @@ describe("query service", () => {
         id: "userId",
       });
       expect(Firestore().where).toHaveBeenCalledWith(
-        "collaborators",
-        "array-contains",
-        {
-          active: true,
-          email: "user@example.com",
-          id: "userId",
-        }
+        "collaborators.userId.active",
+        "!=",
+        false
       );
       expect(Firestore().query).toHaveBeenCalledWith(
         Collection().decisionCollection,

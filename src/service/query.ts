@@ -10,10 +10,7 @@ import {
 export function queryCollaboratorDecisions(user: User) {
   return query(
     decisionCollection,
-    where("collaborators", "array-contains", {
-      ...user,
-      active: true,
-    })
+    where(`collaborators.${user.id}.active`, "!=", false)
   );
 }
 
