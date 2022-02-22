@@ -14,7 +14,7 @@ export interface Criterion {
 export interface Decision {
   created: number;
   creator: User;
-  collaborators: Record<string, Collaborator> | undefined;
+  collaborators: Record<string, Collaborator> | null;
   id: string;
   title: string;
 }

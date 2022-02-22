@@ -35,7 +35,7 @@ export function decisionListener(context: AppContext) {
         send({ type: "DECISIONLOADED", decision });
         return;
       }
-      if (decision.collaborators === undefined) {
+      if (decision.collaborators === null) {
         send({ type: "ERROR", error: notFound });
         return;
       }

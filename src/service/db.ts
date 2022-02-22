@@ -80,7 +80,7 @@ export async function addCriterion(
 export function addDecision(creator: User, title: string): string {
   const ref = doc(decisionCollection);
   setDoc(ref, {
-    collaborators: undefined,
+    collaborators: null,
     created: Date.now(),
     creator,
     title,
