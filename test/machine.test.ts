@@ -104,7 +104,7 @@ describe("machine", () => {
                           target: ".options",
                         },
                         RATINGS: {
-                          cond: Guards().enoughCriteria,
+                          cond: Guards().enoughOptionsAndCriteria,
                           target: ".ratings",
                         },
                         RESULTS: {

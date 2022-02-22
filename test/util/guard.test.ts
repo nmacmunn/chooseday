@@ -52,41 +52,6 @@ describe("guard util", () => {
       expect(result).toBe(true);
     });
   });
-  describe("enoughCriteria", () => {
-    let context: AppContext;
-    beforeEach(() => {
-      const criteria = [new FakeCriterion(), new FakeCriterion()];
-      context = {
-        criteria,
-        decision: new FakeDecision(),
-        decisionId: "decisionId",
-        options: [new FakeOption(), new FakeOption()],
-        ratings: [],
-        user: new FakeUser(),
-        userCriteria: criteria,
-        userRatings: [],
-      };
-    });
-    it("should return false if user is undefined", () => {
-      context.user = undefined;
-      const result = runScript().enoughCriteria(context);
-      expect(result).toBe(false);
-    });
-    it("should return false if userCriteria is undefined", () => {
-      context.userCriteria = undefined;
-      const result = runScript().enoughCriteria(context);
-      expect(result).toBe(false);
-    });
-    it("should return false if there are less than two criteria belonging to the user", () => {
-      context.userCriteria.length = 1;
-      const result = runScript().enoughCriteria(context);
-      expect(result).toBe(false);
-    });
-    it("should return true if there are two criteria belonging to the user", () => {
-      const result = runScript().enoughCriteria(context);
-      expect(result).toBe(true);
-    });
-  });
   describe("enterError", () => {
     it("should return false if not an error context", () => {
       const result = runScript().enterError({}, {}, {} as any);

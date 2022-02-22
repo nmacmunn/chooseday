@@ -97,7 +97,7 @@ const machine = createMachine<BaseContext, AppEvent, AppState>({
                       target: ".options",
                     },
                     RATINGS: {
-                      cond: guards.enoughCriteria,
+                      cond: guards.enoughOptionsAndCriteria,
                       target: ".ratings",
                     },
                     RESULTS: {

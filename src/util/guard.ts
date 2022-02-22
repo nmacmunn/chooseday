@@ -34,19 +34,14 @@ export function doneRating(context: AppContext) {
 }
 
 /**
- * Ensure user has created enough criteria.
- */
-export function enoughCriteria(context: AppContext): boolean {
-  if (!isCriteriaContext(context)) {
-    return false;
-  }
-  return context.userCriteria.length >= 2;
-}
-
-/**
  * Ensure user has created enough options.
  */
 export const enoughOptions = isCriteriaContext;
+
+/**
+ * Ensure user has created enough options and criteria.
+ */
+export const enoughOptionsAndCriteria = isRatingsContext;
 
 /**
  * Whether to enter the error state.
