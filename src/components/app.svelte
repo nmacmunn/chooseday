@@ -1,18 +1,26 @@
 <script lang="ts">
+  import { state } from "../machine";
+  import { stateValue } from "../util/state-value";
   import Body from "./body.svelte";
   import Nav from "./nav.svelte";
   import Navbar from "./navbar.svelte";
+  import SignIn from "./sign-in.svelte";
+  const { signedOut } = stateValue;
 </script>
 
 <div class="uk-container">
   <Navbar />
   <div class="uk-grid">
-    <div class="uk-width-1-5@m">
-      <Nav />
-    </div>
-    <div class="uk-width-4-5@m">
-      <Body />
-    </div>
+    {#if $state.matches(signedOut)}
+      <SignIn />
+    {:else}
+      <div class="uk-width-1-5@m">
+        <Nav />
+      </div>
+      <div class="uk-width-4-5@m">
+        <Body />
+      </div>
+    {/if}
   </div>
 </div>
 <div

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { state } from "../machine";
+  import { stateValue } from "../util/state-value";
   import Collaborators from "./collaborators.svelte";
   import Criteria from "./criteria.svelte";
   import Decisions from "./decisions.svelte";
@@ -8,8 +9,6 @@
   import Options from "./options.svelte";
   import Ratings from "./ratings.svelte";
   import Results from "./results.svelte";
-  import SignIn from "./sign-in.svelte";
-  import { stateValue } from "../util/state-value";
 
   const {
     collaborators,
@@ -24,7 +23,6 @@
     results,
     route,
     signingIn,
-    signedOut,
   } = stateValue;
 </script>
 
@@ -33,8 +31,6 @@
   <div>{$state.context.error}</div>
 {:else if $state.matches(preAuth) || $state.matches(signingIn) || $state.matches(route) || $state.matches(decisionLoading) || $state.matches(decisionsLoading)}
   <Loading text="Loading, please wait..." />
-{:else if $state.matches(signedOut)}
-  <SignIn />
 {:else if $state.matches(decisionsLoaded)}
   <Decisions state={$state} />
 {:else if $state.matches(decisionLoaded)}

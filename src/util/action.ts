@@ -57,8 +57,10 @@ export function pushUrl<T extends BaseContext, U extends AppEvent>(
   meta: ActionMeta<T, U>
 ) {
   if (meta.state.matches(stateValue.decisionsLoaded)) {
+    document.title = "Chooseday";
     pushHistory("/decisions");
   } else if (meta.state.matches(stateValue.decisionLoaded)) {
+    document.title = "Chooseday - " + context.decision?.title;
     pushHistory("/decision/" + context.decisionId);
   }
 }
