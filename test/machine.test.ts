@@ -155,7 +155,17 @@ describe("machine", () => {
             },
           },
         },
-        error: {},
+        error: {
+          always: {
+            cond: Guards().noError,
+            target: "auth",
+          },
+          on: {
+            HOME: {
+              actions: Actions().clearError,
+            },
+          },
+        },
         preAuth: {
           invoke: {
             src: Services().redirectResultListener,

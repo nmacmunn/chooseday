@@ -166,7 +166,7 @@ describe("db service", () => {
       expect(Firestore().setDoc).toHaveBeenCalledWith(
         { id: "decisionId" },
         {
-          collaborators: undefined,
+          collaborators: null,
           created: 1234567890,
           creator: { id: "userId", email: "user@example.com" },
           title: "decision title",
@@ -705,8 +705,17 @@ describe("db service", () => {
       runScript().subscribeDecision("decisionId", () => {});
       expect(Firestore().onSnapshot).toHaveBeenCalledWith(
         {},
+        expect.any(Function),
         expect.any(Function)
       );
+    });
+    it("should invoke the callback with undefined if subscribing fails", (done) => {
+      runScript().subscribeDecision("decisionId", (decision) => {
+        expect(decision).toBeUndefined();
+        done();
+      });
+      const [, , errorHandler] = Firestore().onSnapshot.mock.calls[0];
+      errorHandler();
     });
     it("should invoke the callback with undefined if the specified decision doesn't exist", (done) => {
       runScript().subscribeDecision("decisionId", (decision) => {

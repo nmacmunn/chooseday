@@ -53,3 +53,7 @@ export const enterError: ConditionPredicate<AppContext, AppEvent> = function (
 ): boolean {
   return isErrorContext(context) && !meta.state.matches("error");
 };
+
+export function noError({ error }: AppContext) {
+  return !error;
+}

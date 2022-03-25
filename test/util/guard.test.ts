@@ -1,10 +1,3 @@
-import { AppContext } from "../../src/types/context";
-import {
-  FakeCriterion,
-  FakeDecision,
-  FakeOption,
-  FakeUser,
-} from "../helpers/fake";
 import { MachineHarness } from "../helpers/machine";
 
 jest.disableAutomock();
@@ -77,6 +70,16 @@ describe("guard util", () => {
         {},
         { state: { matches } } as any
       );
+      expect(result).toBe(true);
+    });
+  });
+  describe("noError", () => {
+    it("should return false if error is defined", () => {
+      const result = runScript().noError({ error: {} });
+      expect(result).toBe(false);
+    });
+    it("should return true if error is undefined", () => {
+      const result = runScript().noError({ error: undefined });
       expect(result).toBe(true);
     });
   });

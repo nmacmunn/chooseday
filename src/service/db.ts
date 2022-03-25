@@ -254,10 +254,14 @@ export function subscribeDecision(
   callback: (decision: Decision | undefined) => void
 ) {
   const ref = decisionRef(decisionId);
-  return onSnapshot(ref, (decision) => {
-    const result = decision.exists() ? mergeId(decision) : undefined;
-    callback(result);
-  });
+  return onSnapshot(
+    ref,
+    (decision) => {
+      const result = decision.exists() ? mergeId(decision) : undefined;
+      callback(result);
+    },
+    () => callback(undefined)
+  );
 }
 
 /**

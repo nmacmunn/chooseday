@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom";
-import { act, render, RenderResult } from "@testing-library/svelte";
+import { render, RenderResult } from "@testing-library/svelte";
 import { MachineHarness } from "../helpers/machine";
 
 jest.disableAutomock();
@@ -22,6 +22,11 @@ describe("Body", () => {
   beforeEach(() => {
     jest.resetModules();
     harness = new Harness();
+  });
+  it("should render the error view", () => {
+    harness.enter("error");
+    harness.render();
+    expect(harness.result.getByText("Oh no!")).toBeVisible();
   });
   it("should render the loading spinner initially", () => {
     harness.render();
@@ -46,11 +51,6 @@ describe("Body", () => {
     harness.enter("decisionLoading");
     harness.render();
     expect(harness.loading).toBeVisible();
-  });
-  it("should render the sign in view", async () => {
-    harness.enter("signedOut");
-    harness.render();
-    expect(harness.result.getByText("continue as a guest")).toBeVisible();
   });
   it("should render the decisions view", async () => {
     harness.enter("decisionsLoaded");

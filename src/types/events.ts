@@ -10,6 +10,7 @@ export type AppEvent =
   | DecisionLoadedEvent
   | DecisionsEvent
   | ErrorEvent
+  | HomeEvent
   | LoadEvent
   | OptionsEvent
   | OptionsLoadedEvent
@@ -60,6 +61,10 @@ export interface DecisionsEvent {
 export interface ErrorEvent {
   type: "ERROR";
   error: string;
+}
+
+export interface HomeEvent {
+  type: "HOME";
 }
 
 export interface LoadEvent {

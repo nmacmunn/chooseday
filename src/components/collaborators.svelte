@@ -30,7 +30,7 @@
       Link account
     </button>
   </div>
-{:else if decision.collaborators === undefined}
+{:else if decision.collaborators === null}
   <div class="uk-alert uk-text-center">
     <p>Collaboration is not enabled for this decision</p>
     <button

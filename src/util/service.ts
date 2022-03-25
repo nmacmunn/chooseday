@@ -16,8 +16,8 @@ import { isDecisionLoadingContext, isDecisionsLoadingContext } from "./context";
 import { historyListener } from "./history";
 import { hasEmail } from "./user";
 
-const notFound = "We couldn't find that decision";
-const noEmail = "You have to be signed in with Google to collaborate";
+const notFound = "That decision doesn't exist or collaboration isn't enabled.";
+const noEmail = "You have to be signed in with Google to collaborate.";
 
 export function decisionListener(context: AppContext) {
   return (send: Sender<AppEvent>) => {
@@ -117,6 +117,10 @@ export function redirectResultListener() {
   };
 }
 
+/**
+ * Returns a callback handler that routes immediately and then whenever
+ * the back or forward button is pressed.
+ */
 export function urlListener() {
   return (send: Sender<AppEvent>) => {
     function route(pathname: string) {

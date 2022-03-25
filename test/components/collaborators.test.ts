@@ -69,14 +69,14 @@ describe("collaborators", () => {
     expect(harness.linkAccountButton).toBeVisible();
   });
   it("should show the enable collaboration button if not enabled", () => {
-    const decision = new FakeDecision({ collaborators: undefined });
+    const decision = new FakeDecision({ collaborators: null });
     harness.enter("collaborators");
     harness.sendDecisionLoaded(decision);
     harness.render();
     expect(harness.enableButton).toBeVisible();
   });
   it("should enable collaboration when the button is pressed", async () => {
-    const decision = new FakeDecision({ collaborators: undefined });
+    const decision = new FakeDecision({ collaborators: null });
     harness.enter("collaborators");
     harness.sendDecisionLoaded(decision);
     harness.render();
@@ -132,13 +132,13 @@ describe("collaborators", () => {
   it("should not show the placeholder if there are collaborators", () => {
     harness.enter("collaborators");
     const decision = new FakeDecision();
-    decision.collaborators = [
-      {
+    decision.collaborators = {
+      friendId: {
         active: true,
         email: "friend@example.com",
         id: "friendId",
       },
-    ];
+    };
     harness.sendDecisionLoaded(decision);
     harness.render();
     expect(() => harness.placeholderText).toThrow();
@@ -156,18 +156,18 @@ describe("collaborators", () => {
   });
   it("should show each active collaborator", () => {
     const decision = new FakeDecision({
-      collaborators: [
-        {
+      collaborators: {
+        obiId: {
           active: true,
           email: "obi@example.com",
           id: "obiId",
         },
-        {
+        maceId: {
           active: false,
           email: "mace@example.com",
           id: "maceId",
         },
-      ],
+      },
     });
     harness.enter("collaborators");
     harness.sendDecisionLoaded(decision);
@@ -177,13 +177,13 @@ describe("collaborators", () => {
   });
   it("should show the creator a remove collaborator button", async () => {
     const decision = new FakeDecision({
-      collaborators: [
-        {
+      collaborators: {
+        obiId: {
           active: true,
           email: "obi@example.com",
           id: "obiId",
         },
-      ],
+      },
     });
     harness.enter("collaborators");
     harness.sendDecisionLoaded(decision);
@@ -199,13 +199,13 @@ describe("collaborators", () => {
   });
   it("should remove a collaborator when the button is pressed", async () => {
     const decision = new FakeDecision({
-      collaborators: [
-        {
+      collaborators: {
+        obiId: {
           active: true,
           email: "obi@example.com",
           id: "obiId",
         },
-      ],
+      },
     });
     harness.enter("collaborators");
     harness.sendDecisionLoaded(decision);

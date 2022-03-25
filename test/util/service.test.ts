@@ -53,7 +53,7 @@ describe("service util", () => {
         callback(undefined);
         expect(send).toHaveBeenCalledWith({
           type: "ERROR",
-          error: "We couldn't find that decision",
+          error: "That decision doesn't exist or collaboration isn't enabled.",
         });
       });
       it("should send DECISIONLOADED if it was created by the user", () => {
@@ -73,7 +73,7 @@ describe("service util", () => {
           decision,
         });
       });
-      it("should send ERROR if the collaborators are not enabled", () => {
+      it("should send ERROR if collaboration is not enabled", () => {
         Context().isDecisionLoadingContext.mockReturnValue(true);
         User().hasEmail.mockReturnValue(true);
         const context = {
@@ -84,11 +84,11 @@ describe("service util", () => {
         const send = jest.fn();
         callbackHandler(send);
         const [, callback] = Db().subscribeDecision.mock.calls[0];
-        const decision = new FakeDecision({ collaborators: undefined });
+        const decision = new FakeDecision({ collaborators: null });
         callback(decision);
         expect(send).toHaveBeenCalledWith({
           type: "ERROR",
-          error: "We couldn't find that decision",
+          error: "That decision doesn't exist or collaboration isn't enabled.",
         });
       });
       it("should send ERROR if user does not have an email", () => {
@@ -106,7 +106,7 @@ describe("service util", () => {
         callback(decision);
         expect(send).toHaveBeenCalledWith({
           type: "ERROR",
-          error: "You have to be signed in with Google to collaborate",
+          error: "You have to be signed in with Google to collaborate.",
         });
       });
       it("should add a new collaborator", () => {
@@ -157,12 +157,14 @@ describe("service util", () => {
         callbackHandler(send);
         const [, callback] = Db().subscribeDecision.mock.calls[0];
         const decision = new FakeDecision({
-          collaborators: [{ id: "friendId", email: "", active: false }],
+          collaborators: {
+            friendId: { id: "friendId", email: "", active: false },
+          },
         });
         callback(decision);
         expect(send).toHaveBeenCalledWith({
           type: "ERROR",
-          error: "We couldn't find that decision",
+          error: "That decision doesn't exist or collaboration isn't enabled.",
         });
       });
       it("should send DECISIONLOADED for returning collaborators", () => {
@@ -177,7 +179,9 @@ describe("service util", () => {
         callbackHandler(send);
         const [, callback] = Db().subscribeDecision.mock.calls[0];
         const decision = new FakeDecision({
-          collaborators: [{ id: "friendId", email: "", active: true }],
+          collaborators: {
+            friendId: { id: "friendId", email: "", active: true },
+          },
         });
         callback(decision);
         expect(send).toHaveBeenCalledWith({

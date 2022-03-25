@@ -21,7 +21,7 @@
             </a>
           </li>
           <li>
-            <a href="#user" aria-label="User">
+            <a href="/user" aria-label="User" on:click|preventDefault>
               <span aria-hidden uk-icon="user" />
             </a>
             <div class="uk-navbar-dropdown">

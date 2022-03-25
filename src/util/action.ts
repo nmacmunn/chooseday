@@ -13,6 +13,7 @@ import type {
   DecisionLoadedEvent,
   DecisionsEvent,
   ErrorEvent,
+  HomeEvent,
   LoadEvent,
   OptionsLoadedEvent,
   RatingsLoadedEvent,
@@ -47,10 +48,23 @@ export const clearDecision = assign<BaseContext, DecisionsEvent>({
   result: undefined,
 });
 
+/**
+ * Clear the error and url (in case it's the cause).
+ */
+export const clearError = assign<BaseContext, HomeEvent>({
+  error: () => {
+    pushHistory("/decisions");
+    return undefined;
+  },
+});
+
 export const clearUser = assign<BaseContext, SignoutEvent>({
   user: undefined,
 });
 
+/**
+ * Push the url corresponding to the current state onto the history stack.
+ */
 export function pushUrl<T extends BaseContext, U extends AppEvent>(
   context: T,
   _e: U,

@@ -30,6 +30,28 @@ describe("actions", () => {
       });
     });
   });
+  describe("clearError", () => {
+    it("should be an assign action", () => {
+      const { clearError } = runScript();
+      expect(Xstate().assign).toHaveReturnedWith(clearError);
+    });
+    it("should de defined by an assignment function", () => {
+      const { clearError } = runScript();
+      const [assigner] = clearError.args;
+      expect(Xstate().assign).toHaveBeenCalledWith(assigner);
+    });
+    it("should push history", () => {
+      const { clearError } = runScript();
+      const [assigner] = clearError.args;
+      assigner.error();
+      expect(History().pushHistory).toHaveBeenCalledWith("/decisions");
+    });
+    it("should clear 'error'", () => {
+      const { clearError } = runScript();
+      const [assigner] = clearError.args;
+      expect(assigner.error()).not.toBeDefined;
+    });
+  });
   describe("clearUser", () => {
     it("should be an assign action", () => {
       const { clearUser } = runScript();
@@ -55,6 +77,7 @@ describe("actions", () => {
     it("should push /decision/decisionId if state matches decisionLoaded", () => {
       const context = {
         decisionId: "decisionId",
+        decision: { title: "title" },
       };
       const event = {};
       const meta = {
@@ -190,9 +213,6 @@ describe("actions", () => {
     });
     it("should set 'criterion'", () => {
       runScript();
-      expect(Xstate().assign).toHaveBeenCalledWith({
-        criterion: expect.any(Function),
-      });
       expect(Xstate().assign).toHaveBeenCalledWith({
         criterion: expect.any(Function),
       });

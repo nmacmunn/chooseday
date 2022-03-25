@@ -4,7 +4,7 @@
   import Collaborators from "./collaborators.svelte";
   import Criteria from "./criteria.svelte";
   import Decisions from "./decisions.svelte";
-  import Heading from "./heading.svelte";
+  import Error from "./error.svelte";
   import Loading from "./loading.svelte";
   import Options from "./options.svelte";
   import Ratings from "./ratings.svelte";
@@ -27,8 +27,7 @@
 </script>
 
 {#if $state.matches("error")}
-  <Heading>Oh no!</Heading>
-  <div>{$state.context.error}</div>
+  <Error state={$state} />
 {:else if $state.matches(preAuth) || $state.matches(signingIn) || $state.matches(route) || $state.matches(decisionLoading) || $state.matches(decisionsLoading)}
   <Loading text="Loading, please wait..." />
 {:else if $state.matches(decisionsLoaded)}

@@ -32,9 +32,9 @@ describe("sign in component", () => {
     jest.resetModules();
     harness = new Harness();
   });
-  it("should render 'Sign In'", () => {
+  it("should render 'Sign in to get started'", () => {
     harness.render();
-    expect(harness.result.getByText("Sign In")).toBeVisible();
+    expect(harness.result.getByText("Sign in to get started")).toBeVisible();
   });
   it("should render the Sign in with Google button", () => {
     harness.render();

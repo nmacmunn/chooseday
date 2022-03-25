@@ -148,7 +148,17 @@ const machine = createMachine<BaseContext, AppEvent, AppState>({
         },
       },
     },
-    error: {},
+    error: {
+      always: {
+        cond: guards.noError,
+        target: "auth",
+      },
+      on: {
+        HOME: {
+          actions: actions.clearError,
+        },
+      },
+    },
     preAuth: {
       invoke: {
         src: services.redirectResultListener,
