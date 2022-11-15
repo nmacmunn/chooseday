@@ -1,6 +1,6 @@
 import Chart from "chart.js/auto";
 import UIkit from "uikit";
-import "uikit/dist/css/uikit.css";
+import "./theme.less";
 import Icons from "uikit/dist/js/uikit-icons";
 import App from "./components/app.svelte";
 import * as Sentry from "@sentry/browser";
